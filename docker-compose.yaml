@@ -1,0 +1,114 @@
+services:
+  # --- 服务发现 & 配置中心 ---
+  etcd:
+    image:  quay.io/coreos/etcd:v3.5.0
+    container_name: etcd
+    ports:
+      - "32379:2379"
+    environment:
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ALLOW_NONE_AUTHENTICATION=yes
+
+  # --- 关系型数据库 ---
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "35432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Sea-TryGo
+      POSTGRES_DB: first_db
+
+
+  # --- 缓存 & 键值存储 ---
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "36379:6379"
+    command: redis-server --appendonly yes
+
+  # --- 图数据库 (FalkorDB) ---
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: falkordb
+    ports:
+      - "36380:6379"
+    volumes:
+      - ./data/falkordb:/data
+
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "39092:9092"
+    environment:
+      # 官方镜像建议使用这些环境变量
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093  # 这里的 127.0.0.1 改成了 kafka
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+
+  # --- Kafka UI ---
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "38080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=Sea-TryGo-Cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - DYNAMIC_CONFIG_ENABLED=true
+    depends_on:
+      - kafka
+  # --- 对象存储 ---
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "39000:9000"
+      - "39001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: Sea-TryGo
+    command: server /data --console-address ":9001"
+    volumes:
+      - ./data/minio:/data
+
+  # --- 向量数据库 ---
+  milvus:
+    image: milvusdb/milvus:latest
+    container_name: milvus
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    ports:
+      - "19530:19530"
+    depends_on:
+      - etcd
+      - minio
+
+  # --- 日志收集 ---
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "39200:9200"
+
+networks:
+  default:
+    name: Sea-TryGo
