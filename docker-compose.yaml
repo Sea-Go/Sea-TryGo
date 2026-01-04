@@ -1,14 +1,23 @@
 services:
-  # --- 服务发现 & 配置中心 ---
+  # --- 服务发现 & 配置中心 (已更新为官方Milvus配置) ---
   etcd:
-    image:  quay.io/coreos/etcd:v3.5.0
     container_name: etcd
+    image: quay.io/coreos/etcd:v3.5.25
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     ports:
       - "32379:2379"
-    environment:
-      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ALLOW_NONE_AUTHENTICATION=yes
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
   # --- 关系型数据库 ---
   postgres:
@@ -20,7 +29,6 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: Sea-TryGo
       POSTGRES_DB: first_db
-
 
   # --- 缓存 & 键值存储 ---
   redis:
@@ -39,21 +47,19 @@ services:
     volumes:
       - ./data/falkordb:/data
 
-
   kafka:
     image: apache/kafka:latest
     container_name: kafka
     ports:
       - "39092:9092"
     environment:
-      # 官方镜像建议使用这些环境变量
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093  # 这里的 127.0.0.1 改成了 kafka
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
       - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
       - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
@@ -71,33 +77,51 @@ services:
       - DYNAMIC_CONFIG_ENABLED=true
     depends_on:
       - kafka
-  # --- 对象存储 ---
+
+  # --- 对象存储 (已更新为官方Milvus配置) ---
   minio:
-    image: minio/minio:latest
     container_name: minio
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     ports:
       - "39000:9000"
       - "39001:9001"
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: Sea-TryGo
-    command: server /data --console-address ":9001"
     volumes:
-      - ./data/minio:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
-  # --- 向量数据库 ---
+  # --- 向量数据库 (已更新为官方Milvus配置) ---
   milvus:
-    image: milvusdb/milvus:latest
-    container_name: milvus
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.6.8
     command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
+      MQ_TYPE: woodpecker
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
     ports:
       - "19530:19530"
+      - "39091:9091"
     depends_on:
-      - etcd
-      - minio
+      - "etcd"
+      - "minio"
 
   # --- 日志收集 ---
   elasticsearch:
@@ -108,6 +132,30 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "39200:9200"
+
+  # --- 大数据处理 (Flink) ---
+  flink-jobmanager:
+    image: flink:latest
+    container_name: flink-jobmanager
+    ports:
+      - "38081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+
+  flink-taskmanager:
+    image: flink:latest
+    container_name: flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 5
 
 networks:
   default:
