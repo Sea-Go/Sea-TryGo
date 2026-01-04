@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package user;
+option go_package = ".";
+
+message UserInfo {
+  uint64 id = 1;
+  uint32 score=2;
+  string username = 3;
+  string password = 4;
+  string email = 5;
+  map<string, string> extra_info = 6; //这里对应我们在数据库的json字段
+}
+
+message GetUserReq {
+  uint64 id = 1;
+}
+
+message GetUserResp {
+  UserInfo user = 1;
+  bool found = 2;
+}
+
+message CreateUserReq {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+  map<string, string> extra_info = 4;
+}
+
+message CreateUserResp {
+  uint64 id = 1;
+}
+
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResp {
+  string token = 1;
+}
+
+message LogoutReq {
+  string token = 1;
+}
+
+message LogoutResp {
+  bool success = 1;
+}
+
+message UpdateUserReq {
+  uint64 id = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+  map<string, string> extra_info = 5;
+}
+
+message UpdateUserResp {
+  UserInfo user = 1;
+}
+
+message DeleteUserReq {
+  uint64 id = 1;
+}
+
+message DeleteUserResp {
+  bool success = 1;
+}
+
+service UserService {
+  rpc GetUser(GetUserReq) returns (GetUserResp);
+  rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+  rpc Login(LoginReq) returns (LoginResp);
+  rpc Logout(LogoutReq) returns (LogoutResp);
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);
+  rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp);
+}
