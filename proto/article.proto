@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package article;
+option go_package = ".";
+
+message ArticleInfo {
+  uint64 id = 1;
+  string title = 2;  
+  string content = 3;
+  string author = 4;
+  repeated string tags = 5;
+  map<string,string> extra_info = 6;
+}
+
+message GetArticleReq {
+  uint64 id = 1;
+}
+
+message GetArticleResp {
+  ArticleInfo article = 1;
+  bool found = 2;
+}
+
+message CreateArticleReq {
+  string title = 1;
+  string content = 2;
+  string author = 3;
+  repeated string tags = 4;
+  map<string,string> extra_info = 5;
+}
+
+message CreateArticleResp {
+  uint64 id = 1;
+}
+
+message UpdateArticleReq {
+  uint64 id = 1;
+  string title = 2;
+  string content = 3;
+  string author = 4;
+  repeated string tags = 5;
+  map<string,string> extra_info = 6;
+}
+
+message UpdateArticleResp {
+  ArticleInfo article = 1;
+}
+
+
+message DeleteArticleReq {
+  uint64 id = 1;
+}
+
+message DeleteArticleResp {
+  bool success = 1;
+}
+
+service ArticleService {
+  rpc GetArticle(GetArticleReq) returns (GetArticleResp);
+  rpc CreateArticle(CreateArticleReq) returns (CreateArticleResp);
+  rpc UpdateArticle(UpdateArticleReq) returns (UpdateArticleResp);
+  rpc DeleteArticle(DeleteArticleReq) returns (DeleteArticleResp);
+}
