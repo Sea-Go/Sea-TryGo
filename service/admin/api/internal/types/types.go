@@ -81,7 +81,8 @@ type UpdateSelfReq struct {
 }
 
 type UpdateSelfResp struct {
-	Admin AdminInfo `json:"admin"`
+	Success bool      `json:"success"`
+	Admin   AdminInfo `json:"admin"`
 }
 
 type UserInfo struct {

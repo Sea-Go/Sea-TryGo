@@ -69,6 +69,7 @@ func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfRe
 	}
 
 	return &types.UpdateSelfResp{
+		Success: true,
 		Admin: types.AdminInfo{
 			Id:        newAdmin.Id,
 			Username:  newAdmin.Username,
