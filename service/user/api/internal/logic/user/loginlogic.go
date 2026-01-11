@@ -8,11 +8,11 @@ import (
 	"errors"
 	"time"
 
+	"sea-try-go/service/common/cryptx"
+	"sea-try-go/service/common/jwt"
 	"sea-try-go/service/user/api/internal/model"
 	"sea-try-go/service/user/api/internal/svc"
 	"sea-try-go/service/user/api/internal/types"
-	"sea-try-go/service/user/common/cryptx"
-	"sea-try-go/service/user/common/jwt"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
