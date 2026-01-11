@@ -1,0 +1,72 @@
+syntax = "v1"
+
+info (
+	title:   "Admin Center API"
+	desc:    "管理员中心 HTTP 网关,对接 AdminService gRPC"
+	version: "1.0.0"
+)
+
+import "./admin/admin.api"
+
+@server (
+	prefix: "/admincenter/v1"
+	group:  "admin"
+)
+service admincenter {
+	@doc (
+		create: "创建"
+	)
+	@handler create
+	post /admin/register (CreateAdminReq) returns (CreateAdminResp)
+
+	@doc (
+		login: "登录"
+	)
+	@handler login
+	post /admin/login (LoginReq) returns (LoginResp)
+}
+
+//需要登录的服务,用jwt
+@server (
+	prefix: "/admincenter/v1"
+	group:  "admin"
+	jwt:    AdminAuth
+)
+service admincenter {
+	@doc (
+		getuser: "查询用户"
+	)
+	@handler getuser
+	get /admin/getuser (GetUserReq) returns (GetUserResp)
+
+	@doc (
+		getself: "查看自己"
+	)
+	@handler getself
+	get /admin/getself (GetSelfReq) returns (GetSelfResp)
+
+	@doc (
+		getuserlist: "获取指定用户列表"
+	)
+	@handler getuserlist
+	get /admin/getuserlist (GetUserListReq) returns (GetUserListResp)
+
+	@doc (
+		delete: "删除用户"
+	)
+	@handler delete
+	delete /admin/delete (DeleteUserReq) returns (DeleteUserResp)
+
+	@doc (
+		update: "修改个人信息"
+	)
+	@handler update
+	post /admin/update (UpdateSelfReq) returns (UpdateSelfResp)
+
+	@doc (
+		resetuserpassword: "重置user密码"
+	)
+	@handler resetuserpassword
+	post /admin/resetuserpassword (ResetUserPasswordReq) returns (ResetUserPasswordResp)
+}
+
