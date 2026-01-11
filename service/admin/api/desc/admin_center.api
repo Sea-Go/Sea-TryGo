@@ -17,7 +17,7 @@ service admincenter {
 		create: "创建"
 	)
 	@handler create
-	post /admin/register (CreateAdminReq) returns (CreateAdminResp)
+	post /admin/create (CreateAdminReq) returns (CreateAdminResp)
 
 	@doc (
 		login: "登录"
