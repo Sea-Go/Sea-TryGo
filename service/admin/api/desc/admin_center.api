@@ -74,5 +74,17 @@ service admincenter {
 	)
 	@handler updateuser
 	post /admin/updateuser (UpdateUserReq) returns (UpdateUserResp)
+
+	@doc (
+		banuser: "封禁用户"
+	)
+	@handler banuser
+	post /admin/banuser (BanUserReq) returns (BanUserResp)
+
+	@doc (
+		unbanuser: "解封用户"
+	)
+	@handler unbanuser
+	post /admin/unbanuser (UnBanUserReq) returns (UnBanUserResp)
 }
 
