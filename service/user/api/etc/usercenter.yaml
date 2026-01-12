@@ -8,4 +8,4 @@ DataSource : "host=127.0.0.1 user=postgres password=123456 dbname=user_db port=5
 #定义Auth , 一个 json web token
 Auth:
   AccessSecret : "uU7@#hJk9*L2s$5vXz!qWaE4rT&yGnBm"
-  AccessExpire : 180
+  AccessExpire : 86400
