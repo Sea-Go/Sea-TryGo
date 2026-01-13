@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package points;
+option go_package = ".";
+
+message Article{
+  string title = 1;
+  uint64 articleId = 2;
+  uint64 articleExposure = 3;
+}
+
+message PointsInfo{
+  uint64 id = 1;
+  int64 points = 2;
+  repeated Article article = 3;
+  map<string,string> extra_info = 4;
+}
+
+message LoginPointsReq{
+  uint64 id = 1;
+}
+
+message LoginPointsResp{
+  string logMsg = 1;
+}
+
+message GetUserPointsReq{
+  uint64 id = 1;
+}
+
+message GetUserPointsResp{
+  int64 userPoints = 1;
+}
+
+message GetUserArticleReq{
+  uint64 id = 1;
+}
+
+message GetUserArticleResp{
+  repeated Article article = 1;
+}
+
+message AddArticleExposureReq{
+  uint64 exposure = 1;
+  uint64 articleId = 2;
+}
+
+message AddArticleExposureResp{
+  uint64 status = 1;
+  string msg = 2;
+  string data = 3;
+}
+
+service PointsService {
+
+  rpc LoginPoints(LoginPointsReq) returns (LoginPointsResp);
+  rpc GetUserPoints(GetUserPointsReq) returns (GetUserPointsResp);
+  rpc GetUserArticle(GetUserArticleReq) returns (GetUserArticleResp);
+  rpc AddArticleExposure(AddArticleExposureReq) returns(AddArticleExposureResp);
+
+}
