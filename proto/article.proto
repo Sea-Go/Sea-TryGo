@@ -10,6 +10,8 @@ message ArticleInfo {
   string author = 4;
   repeated string tags = 5;
   map<string,string> extra_info = 6;
+  int32 status = 7;
+  string storage_url = 8;
 }
 
 message GetArticleReq {
