@@ -6,26 +6,34 @@ option go_package = ".";
 message Article{
   string title = 1;
   uint64 articleId = 2;
-  uint64 articleExposure = 3;
+  uint64 remainingExposure = 3;
+  uint64 totalExposure = 4;
 }
 
 message PointsInfo{
-  uint64 id = 1;
+  uint64 userId = 1;
   int64 points = 2;
   repeated Article article = 3;
   map<string,string> extra_info = 4;
 }
 
+message Data{
+  int64 userPoints = 1;              // 最新用户积分
+  uint64 remainingExposure = 2;      // 最新剩余曝光
+  uint64 totalExposure = 3;          // 最新总曝光
+}
+
 message LoginPointsReq{
-  uint64 id = 1;
+  uint64 userId = 1;
 }
 
 message LoginPointsResp{
   string logMsg = 1;
+  PointsInfo info = 2;
 }
 
 message GetUserPointsReq{
-  uint64 id = 1;
+  uint64 userId = 1;
 }
 
 message GetUserPointsResp{
@@ -33,7 +41,7 @@ message GetUserPointsResp{
 }
 
 message GetUserArticleReq{
-  uint64 id = 1;
+  uint64 userId = 1;
 }
 
 message GetUserArticleResp{
@@ -43,12 +51,14 @@ message GetUserArticleResp{
 message AddArticleExposureReq{
   uint64 exposure = 1;
   uint64 articleId = 2;
+  uint64 userId = 3;
+  string requestId = 4;
 }
 
 message AddArticleExposureResp{
   uint64 status = 1;
   string msg = 2;
-  string data = 3;
+  Data data = 3;
 }
 
 service PointsService {

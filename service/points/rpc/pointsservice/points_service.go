@@ -17,6 +17,7 @@ type (
 	AddArticleExposureReq  = __.AddArticleExposureReq
 	AddArticleExposureResp = __.AddArticleExposureResp
 	Article                = __.Article
+	Data                   = __.Data
 	GetUserArticleReq      = __.GetUserArticleReq
 	GetUserArticleResp     = __.GetUserArticleResp
 	GetUserPointsReq       = __.GetUserPointsReq

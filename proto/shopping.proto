@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package shopping;
+option go_package = ".";
+
+service shoppingService{
+  rpc
+}
