@@ -4,26 +4,21 @@
 package svc
 
 import (
-	"log"
 	"sea-try-go/service/admin/api/internal/config"
+	"sea-try-go/service/admin/rpc/adminservice"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
+	Config   config.Config
+	AdminRpc adminservice.AdminService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
-	db, err := gorm.Open(postgres.Open(c.DataSource), &gorm.Config{})
-	if err != nil {
-		log.Fatalln("数据库连接失败")
-	}
 	return &ServiceContext{
-		Config: c,
-		DB:     db,
+		Config:   c,
+		AdminRpc: adminservice.NewAdminService(zrpc.MustNewClient(c.AdminRpc)),
 	}
 }
