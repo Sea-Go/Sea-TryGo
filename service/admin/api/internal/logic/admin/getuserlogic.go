@@ -6,9 +6,9 @@ package admin
 import (
 	"context"
 
-	"sea-try-go/service/admin/api/internal/model"
 	"sea-try-go/service/admin/api/internal/svc"
 	"sea-try-go/service/admin/api/internal/types"
+	"sea-try-go/service/admin/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,15 +28,21 @@ func NewGetuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetuserLo
 }
 
 func (l *GetuserLogic) Getuser(req *types.GetUserReq) (resp *types.GetUserResp, err error) {
-	id := req.Id
-	user := model.User{}
-	err = l.svcCtx.DB.Where("id = ?", id).First(&user).Error
+
+	rpcReq := &pb.GetUserReq{
+		Id: req.Id,
+	}
+	rpcResp, err := l.svcCtx.AdminRpc.GetUser(l.ctx, rpcReq)
+	if err != nil {
+		return nil, err
+	}
 	return &types.GetUserResp{
 		User: types.UserInfo{
-			Id:        user.Id,
-			Username:  user.Username,
-			Email:     user.Email,
-			Extrainfo: user.ExtraInfo,
+			Id:        rpcResp.User.Id,
+			Username:  rpcResp.User.Username,
+			Email:     rpcResp.User.Email,
+			Status:    int64(rpcResp.User.Status),
+			Extrainfo: rpcResp.User.ExtraInfo,
 		},
 		Found: true,
 	}, nil
