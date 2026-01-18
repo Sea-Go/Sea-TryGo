@@ -24,7 +24,7 @@ const (
 type PointsRecord struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ArticleId     string                 `protobuf:"bytes,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
-	CoinCount     int32                  `protobuf:"varint,2,opt,name=coin_count,json=coinCount,proto3" json:"coin_count,omitempty"`
+	PointsCount   int64                  `protobuf:"varint,2,opt,name=points_count,json=pointsCount,proto3" json:"points_count,omitempty"`
 	Date          string                 `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -67,9 +67,9 @@ func (x *PointsRecord) GetArticleId() string {
 	return ""
 }
 
-func (x *PointsRecord) GetCoinCount() int32 {
+func (x *PointsRecord) GetPointsCount() int64 {
 	if x != nil {
-		return x.CoinCount
+		return x.PointsCount
 	}
 	return 0
 }
@@ -84,6 +84,8 @@ func (x *PointsRecord) GetDate() string {
 type SignInReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserPoints    int64                  `protobuf:"varint,2,opt,name=user_points,json=userPoints,proto3" json:"user_points,omitempty"`
+	RequestId     int64                  `protobuf:"varint,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,6 +123,20 @@ func (*SignInReq) Descriptor() ([]byte, []int) {
 func (x *SignInReq) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
+	}
+	return 0
+}
+
+func (x *SignInReq) GetUserPoints() int64 {
+	if x != nil {
+		return x.UserPoints
+	}
+	return 0
+}
+
+func (x *SignInReq) GetRequestId() int64 {
+	if x != nil {
+		return x.RequestId
 	}
 	return 0
 }
@@ -181,7 +197,9 @@ type AddArticlePointReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ArticleId     int64                  `protobuf:"varint,2,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
-	CoinCount     int64                  `protobuf:"varint,3,opt,name=coin_count,json=coinCount,proto3" json:"coin_count,omitempty"`
+	PointsCount   int64                  `protobuf:"varint,3,opt,name=points_count,json=pointsCount,proto3" json:"points_count,omitempty"`
+	UserPoints    int64                  `protobuf:"varint,4,opt,name=user_points,json=userPoints,proto3" json:"user_points,omitempty"`
+	RequestId     int64                  `protobuf:"varint,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,9 +248,23 @@ func (x *AddArticlePointReq) GetArticleId() int64 {
 	return 0
 }
 
-func (x *AddArticlePointReq) GetCoinCount() int64 {
+func (x *AddArticlePointReq) GetPointsCount() int64 {
 	if x != nil {
-		return x.CoinCount
+		return x.PointsCount
+	}
+	return 0
+}
+
+func (x *AddArticlePointReq) GetUserPoints() int64 {
+	if x != nil {
+		return x.UserPoints
+	}
+	return 0
+}
+
+func (x *AddArticlePointReq) GetRequestId() int64 {
+	if x != nil {
+		return x.RequestId
 	}
 	return 0
 }
@@ -377,197 +409,46 @@ func (x *GetUserAddPointHistoryResp) GetPointsRecord() []*PointsRecord {
 	return nil
 }
 
-type Task struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Name               string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	CompletionProgress int64                  `protobuf:"varint,2,opt,name=completion_progress,json=completionProgress,proto3" json:"completion_progress,omitempty"` // 完成进度
-	RequiredProgress   int64                  `protobuf:"varint,3,opt,name=required_progress,json=requiredProgress,proto3" json:"required_progress,omitempty"`       // 总要求进度
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *Task) Reset() {
-	*x = Task{}
-	mi := &file_proto_points_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Task) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Task) ProtoMessage() {}
-
-func (x *Task) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_points_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Task.ProtoReflect.Descriptor instead.
-func (*Task) Descriptor() ([]byte, []int) {
-	return file_proto_points_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *Task) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *Task) GetCompletionProgress() int64 {
-	if x != nil {
-		return x.CompletionProgress
-	}
-	return 0
-}
-
-func (x *Task) GetRequiredProgress() int64 {
-	if x != nil {
-		return x.RequiredProgress
-	}
-	return 0
-}
-
-type GetTaskProgressReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetTaskProgressReq) Reset() {
-	*x = GetTaskProgressReq{}
-	mi := &file_proto_points_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetTaskProgressReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetTaskProgressReq) ProtoMessage() {}
-
-func (x *GetTaskProgressReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_points_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetTaskProgressReq.ProtoReflect.Descriptor instead.
-func (*GetTaskProgressReq) Descriptor() ([]byte, []int) {
-	return file_proto_points_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetTaskProgressReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-type GetTaskProgressResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Task          []*Task                `protobuf:"bytes,1,rep,name=task,proto3" json:"task,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetTaskProgressResp) Reset() {
-	*x = GetTaskProgressResp{}
-	mi := &file_proto_points_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetTaskProgressResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetTaskProgressResp) ProtoMessage() {}
-
-func (x *GetTaskProgressResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_points_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetTaskProgressResp.ProtoReflect.Descriptor instead.
-func (*GetTaskProgressResp) Descriptor() ([]byte, []int) {
-	return file_proto_points_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetTaskProgressResp) GetTask() []*Task {
-	if x != nil {
-		return x.Task
-	}
-	return nil
-}
-
 var File_proto_points_proto protoreflect.FileDescriptor
 
 const file_proto_points_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/points.proto\x12\x06points\"`\n" +
+	"\x12proto/points.proto\x12\x06points\"d\n" +
 	"\fPointsRecord\x12\x1d\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\tR\tarticleId\x12\x1d\n" +
-	"\n" +
-	"coin_count\x18\x02 \x01(\x05R\tcoinCount\x12\x12\n" +
-	"\x04date\x18\x03 \x01(\tR\x04date\"$\n" +
+	"article_id\x18\x01 \x01(\tR\tarticleId\x12!\n" +
+	"\fpoints_count\x18\x02 \x01(\x03R\vpointsCount\x12\x12\n" +
+	"\x04date\x18\x03 \x01(\tR\x04date\"d\n" +
 	"\tSignInReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\"@\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1f\n" +
+	"\vuser_points\x18\x02 \x01(\x03R\n" +
+	"userPoints\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x03 \x01(\x03R\trequestId\"@\n" +
 	"\n" +
 	"SignInResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"k\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xaf\x01\n" +
 	"\x12AddArticlePointReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"article_id\x18\x02 \x01(\x03R\tarticleId\x12\x1d\n" +
+	"article_id\x18\x02 \x01(\x03R\tarticleId\x12!\n" +
+	"\fpoints_count\x18\x03 \x01(\x03R\vpointsCount\x12\x1f\n" +
+	"\vuser_points\x18\x04 \x01(\x03R\n" +
+	"userPoints\x12\x1d\n" +
 	"\n" +
-	"coin_count\x18\x03 \x01(\x03R\tcoinCount\"I\n" +
+	"request_id\x18\x05 \x01(\x03R\trequestId\"I\n" +
 	"\x13AddArticlePointResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"4\n" +
 	"\x19GetUserAddPointHistoryReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\"W\n" +
 	"\x1aGetUserAddPointHistoryResp\x129\n" +
-	"\rpoints_record\x18\x01 \x03(\v2\x14.points.PointsRecordR\fpointsRecord\"x\n" +
-	"\x04Task\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12/\n" +
-	"\x13completion_progress\x18\x02 \x01(\x03R\x12completionProgress\x12+\n" +
-	"\x11required_progress\x18\x03 \x01(\x03R\x10requiredProgress\"-\n" +
-	"\x12GetTaskProgressReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\"7\n" +
-	"\x13GetTaskProgressResp\x12 \n" +
-	"\x04task\x18\x01 \x03(\v2\f.points.TaskR\x04task2\xb9\x02\n" +
+	"\rpoints_record\x18\x01 \x03(\v2\x14.points.PointsRecordR\fpointsRecord2\xed\x01\n" +
 	"\rPointsService\x12/\n" +
 	"\x06SignIn\x12\x11.points.SignInReq\x1a\x12.points.SignInResp\x12J\n" +
 	"\x0fAddArticlePoint\x12\x1a.points.AddArticlePointReq\x1a\x1b.points.AddArticlePointResp\x12_\n" +
-	"\x16GetUserAddPointHistory\x12!.points.GetUserAddPointHistoryReq\x1a\".points.GetUserAddPointHistoryResp\x12J\n" +
-	"\x0fGetTaskProgress\x12\x1a.points.GetTaskProgressReq\x1a\x1b.points.GetTaskProgressRespB\x03Z\x01.b\x06proto3"
+	"\x16GetUserAddPointHistory\x12!.points.GetUserAddPointHistoryReq\x1a\".points.GetUserAddPointHistoryRespB\x03Z\x01.b\x06proto3"
 
 var (
 	file_proto_points_proto_rawDescOnce sync.Once
@@ -581,7 +462,7 @@ func file_proto_points_proto_rawDescGZIP() []byte {
 	return file_proto_points_proto_rawDescData
 }
 
-var file_proto_points_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_proto_points_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_points_proto_goTypes = []any{
 	(*PointsRecord)(nil),               // 0: points.PointsRecord
 	(*SignInReq)(nil),                  // 1: points.SignInReq
@@ -590,26 +471,20 @@ var file_proto_points_proto_goTypes = []any{
 	(*AddArticlePointResp)(nil),        // 4: points.AddArticlePointResp
 	(*GetUserAddPointHistoryReq)(nil),  // 5: points.GetUserAddPointHistoryReq
 	(*GetUserAddPointHistoryResp)(nil), // 6: points.GetUserAddPointHistoryResp
-	(*Task)(nil),                       // 7: points.Task
-	(*GetTaskProgressReq)(nil),         // 8: points.GetTaskProgressReq
-	(*GetTaskProgressResp)(nil),        // 9: points.GetTaskProgressResp
 }
 var file_proto_points_proto_depIdxs = []int32{
 	0, // 0: points.GetUserAddPointHistoryResp.points_record:type_name -> points.PointsRecord
-	7, // 1: points.GetTaskProgressResp.task:type_name -> points.Task
-	1, // 2: points.PointsService.SignIn:input_type -> points.SignInReq
-	3, // 3: points.PointsService.AddArticlePoint:input_type -> points.AddArticlePointReq
-	5, // 4: points.PointsService.GetUserAddPointHistory:input_type -> points.GetUserAddPointHistoryReq
-	8, // 5: points.PointsService.GetTaskProgress:input_type -> points.GetTaskProgressReq
-	2, // 6: points.PointsService.SignIn:output_type -> points.SignInResp
-	4, // 7: points.PointsService.AddArticlePoint:output_type -> points.AddArticlePointResp
-	6, // 8: points.PointsService.GetUserAddPointHistory:output_type -> points.GetUserAddPointHistoryResp
-	9, // 9: points.PointsService.GetTaskProgress:output_type -> points.GetTaskProgressResp
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 1: points.PointsService.SignIn:input_type -> points.SignInReq
+	3, // 2: points.PointsService.AddArticlePoint:input_type -> points.AddArticlePointReq
+	5, // 3: points.PointsService.GetUserAddPointHistory:input_type -> points.GetUserAddPointHistoryReq
+	2, // 4: points.PointsService.SignIn:output_type -> points.SignInResp
+	4, // 5: points.PointsService.AddArticlePoint:output_type -> points.AddArticlePointResp
+	6, // 6: points.PointsService.GetUserAddPointHistory:output_type -> points.GetUserAddPointHistoryResp
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_points_proto_init() }
@@ -623,7 +498,7 @@ func file_proto_points_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_points_proto_rawDesc), len(file_proto_points_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

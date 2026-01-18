@@ -5,12 +5,14 @@ option go_package = ".";
 
 message PointsRecord {
   string article_id = 1;
-  int32 coin_count = 2;
+  int64 points_count = 2;
   string date = 3;
 }
 
 message SignInReq {
   int64 user_id = 1;
+  int64 user_points = 2;
+  int64 request_id = 3;
 }
 
 message SignInResp {
@@ -21,7 +23,9 @@ message SignInResp {
 message AddArticlePointReq {
   int64 user_id = 1;
   int64 article_id = 2;
-  int64 coin_count = 3;
+  int64 points_count = 3;
+  int64 user_points = 4;
+  int64 request_id = 5;
 }
 
 message AddArticlePointResp {
@@ -37,25 +41,10 @@ message GetUserAddPointHistoryResp {
   repeated PointsRecord points_record = 1;
 }
 
-message Task{
-  string name = 1;
-  int64 completion_progress = 2; // 完成进度
-  int64 required_progress = 3;  // 总要求进度
-}
-
-message GetTaskProgressReq{
-  int64 user_id = 1;
-}
-
-message GetTaskProgressResp{
-  repeated Task task = 1;
-}
-
 service PointsService {
 
   rpc SignIn(SignInReq) returns (SignInResp); //签到
   rpc AddArticlePoint(AddArticlePointReq) returns (AddArticlePointResp); //对某个文章进行投币
   rpc GetUserAddPointHistory(GetUserAddPointHistoryReq) returns (GetUserAddPointHistoryResp); //获取用户的投币记录
-  rpc GetTaskProgress(GetTaskProgressReq) returns (GetTaskProgressResp); //获取用户的任务进度
 
 }
