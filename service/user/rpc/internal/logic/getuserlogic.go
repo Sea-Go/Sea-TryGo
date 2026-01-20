@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"sea-try-go/service/user/rpc/internal/metrics"
+	"time"
 
 	"sea-try-go/service/user/rpc/internal/model"
 	"sea-try-go/service/user/rpc/internal/svc"
@@ -25,7 +27,7 @@ func NewGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserLo
 }
 
 func (l *GetUserLogic) GetUser(in *pb.GetUserReq) (*pb.GetUserResp, error) {
-
+	start := time.Now()
 	user := model.User{}
 	err := l.svcCtx.DB.Where("id = ?", in.Id).First(&user).Error
 	if err != nil {
@@ -33,6 +35,10 @@ func (l *GetUserLogic) GetUser(in *pb.GetUserReq) (*pb.GetUserResp, error) {
 			Found: false,
 		}, err
 	}
+	defer func() {
+		costMs := time.Since(start).Milliseconds()
+		metrics.GetUserLatencyMs.Observe(costMs, "success")
+	}()
 
 	return &pb.GetUserResp{
 		User: &pb.UserInfo{
