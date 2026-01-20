@@ -1,0 +1,105 @@
+syntax = "v1"
+
+type (
+	// Article structure
+	Article {
+		Id            string            `json:"id"`
+		Title         string            `json:"title"`
+		Brief         string            `json:"brief"`
+		Content       string            `json:"content"`
+		CoverImageUrl string            `json:"cover_image_url"`
+		ManualTypeTag string            `json:"manual_type_tag"`
+		SecondaryTags []string          `json:"secondary_tags"`
+		AuthorId      string            `json:"author_id"`
+		CreateTime    int64             `json:"create_time"`
+		UpdateTime    int64             `json:"update_time"`
+		Status        int32             `json:"status"`
+		ViewCount     int32             `json:"view_count"`
+		LikeCount     int32             `json:"like_count"`
+		CommentCount  int32             `json:"comment_count"`
+		ShareCount    int32             `json:"share_count"`
+		ExtInfo       map[string]string `json:"ext_info"`
+	}
+	CreateArticleReq {
+		Title         string   `json:"title"`
+		Brief         string   `json:"brief,optional"`
+		Content       string   `json:"content"`
+		CoverImageUrl string   `json:"cover_image_url,optional"`
+		ManualTypeTag string   `json:"manual_type_tag"`
+		SecondaryTags []string `json:"secondary_tags,optional"`
+	}
+	CreateArticleResp {
+		ArticleId string `json:"article_id"`
+	}
+	GetArticleReq {
+		ArticleId string `path:"id"`
+		IncrView  bool   `form:"incr_view,optional"`
+	}
+	GetArticleResp {
+		Article Article `json:"article"`
+	}
+	UpdateArticleReq {
+		ArticleId     string   `path:"id"`
+		Title         string   `json:"title,optional"`
+		Brief         string   `json:"brief,optional"`
+		Content       string   `json:"content,optional"`
+		CoverImageUrl string   `json:"cover_image_url,optional"`
+		ManualTypeTag string   `json:"manual_type_tag,optional"`
+		SecondaryTags []string `json:"secondary_tags,optional"`
+		Status        int32    `json:"status,optional"`
+	}
+	UpdateArticleResp {
+		Success bool `json:"success"`
+	}
+	DeleteArticleReq {
+		ArticleId string `path:"id"`
+	}
+	DeleteArticleResp {
+		Success bool `json:"success"`
+	}
+	ListArticlesReq {
+		ManualTypeTag string `form:"manual_type_tag,optional"`
+		SecondaryTag  string `form:"secondary_tag,optional"`
+		RelatedGameId string `form:"related_game_id,optional"`
+		AuthorId      string `form:"author_id,optional"`
+		Page          int32  `form:"page,default=1"`
+		PageSize      int32  `form:"page_size,default=20"`
+		SortBy        string `form:"sort_by,default=create_time"`
+		Desc          bool   `form:"desc,default=true"`
+	}
+	ListArticlesResp {
+		Articles []Article `json:"articles"`
+		Total    int64     `json:"total"`
+		Page     int32     `json:"page"`
+		PageSize int32     `json:"page_size"`
+	}
+)
+
+@server (
+	prefix: v1
+	group:  article
+	jwt:    Auth
+)
+service article-api {
+	@handler CreateArticle
+	post /article (CreateArticleReq) returns (CreateArticleResp)
+
+	@handler UpdateArticle
+	put /article/:id (UpdateArticleReq) returns (UpdateArticleResp)
+
+	@handler DeleteArticle
+	delete /article/:id (DeleteArticleReq) returns (DeleteArticleResp)
+}
+
+@server (
+	prefix: v1
+	group:  article
+)
+service article-api {
+	@handler GetArticle
+	get /article/:id (GetArticleReq) returns (GetArticleResp)
+
+	@handler ListArticles
+	get /articles (ListArticlesReq) returns (ListArticlesResp)
+}
+
