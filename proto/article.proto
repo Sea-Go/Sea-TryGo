@@ -116,16 +116,5 @@ service ArticleService {
   rpc UpdateArticle(UpdateArticleReq) returns (UpdateArticleResp);
   rpc DeleteArticle(DeleteArticleReq) returns (DeleteArticleResp);
   rpc ListArticles(ListArticlesReq) returns (ListArticlesResp);
-  rpc LikeArticle(LikeArticleReq) returns (LikeArticleResp);
 }
 
-//////////////////// hotspot / like /////////////////////
-message LikeArticleReq {
-  string article_id = 1;              // 文章ID
-  string user_id = 2;                 // 用户ID (?)
-  int32 type = 3;                     // 1=点赞, 2=取消
-}
-
-message LikeArticleResp {
-  int32 like_count = 1;               // 点赞数量
-}

@@ -9,7 +9,7 @@ type Config struct {
 	zrpc.RpcServerConf
 	RedisCli   redis.RedisConf
 	DataSource string
-	System     struct { // unicornshjl 写了，我也写一个
-		DefaultPassword string
-	}
+	//System     struct { // unicornshjl 写了
+	//	DefaultPassword string
+	//}
 }

@@ -3,6 +3,7 @@ package svc
 import (
 	"log"
 	"sea-try-go/service/article/rpc/internal/config"
+	"sea-try-go/service/article/rpc/model"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/driver/postgres"
@@ -10,9 +11,10 @@ import (
 )
 
 type ServiceContext struct {
-	Config   config.Config
-	RedisCli *redis.Redis
-	DB       *gorm.DB
+	Config            config.Config
+	RedisCli          *redis.Redis
+	DB                *gorm.DB
+	ArticleLikesModel model.ArticleLikesModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -21,8 +23,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		log.Fatalln("数据库连接失败")
 	}
 	return &ServiceContext{
-		Config:   c,
-		DB:       db,
-		RedisCli: redis.MustNewRedis(c.RedisCli), // MustNewRedis 连接失败会直接 panic
+		Config:            c,
+		DB:                db,
+		RedisCli:          redis.MustNewRedis(c.RedisCli), // MustNewRedis 连接失败会直接 panic
+		ArticleLikesModel: model.NewArticleLikesModel(conn),
 	}
 }
