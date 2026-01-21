@@ -1,0 +1,61 @@
+syntax = "v1"
+
+info (
+	title:   "User Center API"
+	desc:    "用户中心 HTTP 网关,对接 UserService gRPC"
+	version: "1.0.0"
+)
+
+//导入
+import "./user/user.api"
+
+@server (
+	prefix: "/usercenter/v1"
+	group:  "user"
+)
+service usercenter {
+	@doc (
+		register: "注册"
+	)
+	@handler register
+	post /user/register (CreateUserReq) returns (CreateUserResp)
+
+	@doc (
+		login: "登录"
+	)
+	@handler login
+	post /user/login (LoginReq) returns (LoginResp)
+}
+
+//以下是需要登录的服务,假设使用jwt方案
+@server (
+	prefix: "/usercenter/v1"
+	group:  "user"
+	jwt:    Auth
+)
+service usercenter {
+	@doc (
+		getuser: "查询用户"
+	)
+	@handler getuser
+	get /user/get (GetUserReq) returns (GetUserResp)
+
+	@doc (
+		logout: "登出"
+	)
+	@handler logout
+	post /user/logout (LogoutReq) returns (LogoutResp)
+
+	@doc (
+		updateuser: "更新用户"
+	)
+	@handler updateuser
+	post /user/update (UpdateUserReq) returns (UpdateUserResp)
+
+	@doc (
+		deleteuser: "删除用户"
+	)
+	@handler deleteuser
+	delete /user/delete (DeleteUserReq) returns (DeleteUserResp)
+}
+

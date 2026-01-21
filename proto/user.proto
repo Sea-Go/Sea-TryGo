@@ -5,11 +5,10 @@ option go_package = "./pb";
 
 message UserInfo {
   uint64 id = 1;
-  uint32 score=2;
+  uint32 score = 2;
   string username = 3;
-  string password = 4;
-  string email = 5;
-  map<string, string> extra_info = 6; //这里对应我们在数据库的json字段
+  string email = 4;
+  map<string, string> extra_info = 5; //这里对应我们在数据库的json字段
 }
 
 message GetUserReq {
@@ -38,7 +37,8 @@ message LoginReq {
 }
 
 message LoginResp {
-  string token = 1;
+  uint64 id = 1;
+  uint64 status = 2;
 }
 
 message LogoutReq {
@@ -71,7 +71,7 @@ message DeleteUserResp {
 
 service UserService {
   rpc GetUser(GetUserReq) returns (GetUserResp);
-  rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+  rpc Register(CreateUserReq) returns (CreateUserResp);
   rpc Login(LoginReq) returns (LoginResp);
   rpc Logout(LogoutReq) returns (LogoutResp);
   rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);

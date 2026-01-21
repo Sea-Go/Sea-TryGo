@@ -1,0 +1,122 @@
+syntax = "v1"
+
+type UserInfo{
+    Id uint64 `json:"id"`
+    Username string `json:"username"`
+    Status int64 `json:"status"`
+    Email string `json:"email,omitempty"`
+    Extrainfo map[string]string `json:"extra_info,omitempty"`
+}
+
+type AdminInfo{
+    Id uint64 `json:"id"`
+    Username string `json:"username"`
+    Email string `json:"email"`
+    Extrainfo map[string]string `json:"extra_info,omitempty"`
+}
+
+type GetUserReq{
+    Id uint64 `form:"id"`
+}
+
+type GetUserResp{
+    User UserInfo `json:"user,omitempty"`
+    Found bool `json:"found"`
+}
+
+
+type GetSelfReq{
+
+}
+
+type GetSelfResp{
+    Admin AdminInfo `json:"admin"`
+}
+type CreateAdminReq{
+    Username string `json:"username"`
+    Password string `json:"password"`
+    Email string `json:"email,optional"`
+    Extrainfo map[string]string `json:"extra_info,optional"`
+}
+
+type CreateAdminResp{
+    Id uint64 `json:"id"`
+}
+
+type LoginReq{
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+
+type LoginResp{
+    Token string `json:"token"`
+}
+
+type DeleteUserReq{
+    Id uint64 `json:"id"`
+}
+
+type DeleteUserResp{
+    Success bool `json:"success"`
+}
+
+type ResetUserPasswordReq{
+    Id uint64 `json:"id"`
+}
+
+type ResetUserPasswordResp{
+    Success bool `json:"success"`
+}
+
+type UpdateSelfReq{
+    Username string `json:"username,optional"`
+    Password string `json:"password,optional"`
+    Email string `json:"email,optional"`
+    Extrainfo map[string]string `json:"extra_info,optional"`
+}
+
+type UpdateSelfResp{
+    Success bool `json:"success"`
+    Admin AdminInfo `json:"admin"`
+}
+
+type UpdateUserReq{
+    Id uint64 `json:"id"`
+    Username string `json:"username,optional"`
+    Password string `json:"password,optional"`
+    Email string `json:"email,optional"`
+    Extrainfo map[string]string `json:"extra_info,optional"`
+}
+
+type UpdateUserResp{
+    Success bool `json:"success"`
+    User UserInfo `json:"user"`
+}
+
+type GetUserListReq{
+    Page int64 `form:"page,default=1"`
+    PageSize int64 `form:"page_size,default=20"`
+    Keyword string `form:"keyword,optional"`
+}
+
+type GetUserListResp{
+    List []UserInfo `json:"list"`
+    Total int64 `json:"total"`
+}
+
+type BanUserReq{
+    Id uint64 `json:"id"`
+}
+
+type BanUserResp{
+    Success bool `json:"success"`
+}
+
+type UnBanUserReq{
+    Id uint64 `json:"id"`
+}
+
+
+type UnBanUserResp{
+    Success bool `json:"success"`
+}

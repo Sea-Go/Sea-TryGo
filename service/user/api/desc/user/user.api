@@ -1,0 +1,64 @@
+syntax = "v1"
+
+type UserInfo{
+    Id uint64 `json:"id"`
+    Username string `json:"username"`
+    Email string `json:"email,omitempty"`
+    Extrainfo map[string]string `json:"extra_info,omitempty"`
+}
+
+type GetUserReq{
+    
+}
+
+type GetUserResp{
+    User UserInfo `json:"user,omitempty"`
+    Found bool `json:"found"`
+}
+
+type CreateUserReq{
+    Username string `json:"username"`
+    Password string `json:"password"`
+    Email string `json:"email,omitempty"`
+    Extrainfo map[string]string `json:"extra_info,omitempty"`
+}
+
+type CreateUserResp{
+    Id uint64 `json:"id"`
+}
+
+type LoginReq{
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+
+type LoginResp{
+    Token string `json:"token"`
+}
+
+type LogoutReq{
+    
+}
+
+type LogoutResp{
+    Success bool `json:"success"`
+}
+
+type UpdateUserReq{
+    Username string `json:"username,omitempty"`
+    Password string `json:"password,omitempty"`
+    Email string `json:"email,omitempty"`
+    Extrainfo map[string]string `json:"extra_info,omitempty"`
+}
+
+type UpdateUserResp{
+    User UserInfo `json:"user"`
+}
+
+type DeleteUserReq{
+    
+}
+
+type DeleteUserResp{
+    Success bool `json:"success"`
+}
