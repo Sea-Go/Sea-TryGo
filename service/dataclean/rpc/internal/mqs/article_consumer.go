@@ -32,10 +32,7 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 	var msg struct {
 		ArticleId string `json:"article_id"`
 		AuthorId  string `json:"author_id"`
-		Title     string `json:"title"`
 		Content   string `json:"content"`
-		Action    string `json:"action"`
-		Timestamp int64  `json:"timestamp"`
 	}
 
 	if err := json.Unmarshal([]byte(val), &msg); err != nil {
@@ -48,12 +45,9 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 		return nil
 	}
 
-	// Real content check
-	contentToCheck := msg.Title + "\n" + msg.Content
-
 	serviceParameters, _ := json.Marshal(
 		map[string]interface{}{
-			"content": contentToCheck,
+			"content": msg.Content,
 		},
 	)
 	request := green.TextModerationRequest{

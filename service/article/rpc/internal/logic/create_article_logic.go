@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"sea-try-go/common/utils"
 	"sea-try-go/service/article/rpc/internal/model"
-	"time"
-
-	"github.com/zeromicro/go-zero/core/logx"
 	"sea-try-go/service/article/rpc/internal/svc"
 	"sea-try-go/service/article/rpc/pb"
 )
@@ -54,17 +52,11 @@ func (l *CreateArticleLogic) CreateArticle(in *__.CreateArticleRequest) (*__.Cre
 	msg := struct {
 		ArticleId string `json:"article_id"`
 		AuthorId  string `json:"author_id"`
-		Title     string `json:"title"`
 		Content   string `json:"content"`
-		Action    string `json:"action"`
-		Timestamp int64  `json:"timestamp"`
 	}{
 		ArticleId: articleId,
 		AuthorId:  in.AuthorId,
-		Title:     in.Title,
 		Content:   in.MarkdownContent,
-		Action:    "create",
-		Timestamp: time.Now().Unix(),
 	}
 
 	msgBytes, _ := json.Marshal(msg)
