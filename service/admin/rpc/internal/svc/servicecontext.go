@@ -1,26 +1,20 @@
 package svc
 
 import (
-	"log"
 	"sea-try-go/service/admin/rpc/internal/config"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"sea-try-go/service/admin/rpc/internal/model"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
+	Config     config.Config
+	AdminModel *model.AdminModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
-	db, err := gorm.Open(postgres.Open(c.DataSource), &gorm.Config{})
-	if err != nil {
-		log.Fatalln("数据库连接失败")
-	}
+	db := model.InitDB(c.DataSource)
 	return &ServiceContext{
-		Config: c,
-		DB:     db,
+		Config:     c,
+		AdminModel: model.NewAdminModel(db),
 	}
 }
