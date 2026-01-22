@@ -29,15 +29,15 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 
 	if c.AliGreen.AccessKeyId == "" {
-		c.AliGreen.AccessKeyId = os.Getenv("ALI_GREEN_ACCESS_KEY_ID")
+		c.AliGreen.AccessKeyId = os.Getenv("ALIYUN_ACCESS_KEY_ID")
 	}
 	if c.AliGreen.AccessKeySecret == "" {
-		c.AliGreen.AccessKeySecret = os.Getenv("ALI_GREEN_ACCESS_KEY_SECRET")
+		c.AliGreen.AccessKeySecret = os.Getenv("ALIYUN_ACCESS_KEY_SECRET")
 	}
 
 	// 3. 校验密钥是否配置（可选，防止程序启动后报错）
 	if c.AliGreen.AccessKeyId == "" || c.AliGreen.AccessKeySecret == "" {
-		panic("环境变量 ALI_GREEN_ACCESS_KEY_ID 或 ALI_GREEN_ACCESS_KEY_SECRET 未配置")
+		panic("环境变量 ALIYUN_ACCESS_KEY_ID 或 ALIYUN_ACCESS_KEY_SECRET 未配置")
 	}
 
 	ctx := svc.NewServiceContext(c)
