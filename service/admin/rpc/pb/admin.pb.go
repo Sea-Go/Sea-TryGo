@@ -23,7 +23,7 @@ const (
 
 type AdminInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	ExtraInfo     map[string]string      `protobuf:"bytes,4,rep,name=extra_info,json=extraInfo,proto3" json:"extra_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -61,9 +61,9 @@ func (*AdminInfo) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AdminInfo) GetId() uint64 {
+func (x *AdminInfo) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -91,11 +91,12 @@ func (x *AdminInfo) GetExtraInfo() map[string]string {
 
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Status        uint64                 `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
-	ExtraInfo     map[string]string      `protobuf:"bytes,5,rep,name=extra_info,json=extraInfo,proto3" json:"extra_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	Score         uint32                 `protobuf:"varint,2,opt,name=score,proto3" json:"score,omitempty"`
+	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	Status        uint64                 `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`
+	ExtraInfo     map[string]string      `protobuf:"bytes,6,rep,name=extra_info,json=extraInfo,proto3" json:"extra_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -130,9 +131,16 @@ func (*UserInfo) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *UserInfo) GetId() uint64 {
+func (x *UserInfo) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *UserInfo) GetScore() uint32 {
+	if x != nil {
+		return x.Score
 	}
 	return 0
 }
@@ -167,7 +175,7 @@ func (x *UserInfo) GetExtraInfo() map[string]string {
 
 type GetUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,9 +210,9 @@ func (*GetUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetUserReq) GetId() uint64 {
+func (x *GetUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -263,7 +271,7 @@ func (x *GetUserResp) GetFound() bool {
 
 type GetSelfReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -298,9 +306,9 @@ func (*GetSelfReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetSelfReq) GetId() uint64 {
+func (x *GetSelfReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -419,7 +427,7 @@ func (x *CreateAdminReq) GetExtraInfo() map[string]string {
 
 type CreateAdminResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -454,9 +462,9 @@ func (*CreateAdminResp) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *CreateAdminResp) GetId() uint64 {
+func (x *CreateAdminResp) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -515,7 +523,7 @@ func (x *LoginReq) GetPassword() string {
 
 type LoginResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -550,16 +558,16 @@ func (*LoginResp) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *LoginResp) GetId() uint64 {
+func (x *LoginResp) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
 
 type DeleteUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -594,9 +602,9 @@ func (*DeleteUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *DeleteUserReq) GetId() uint64 {
+func (x *DeleteUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -647,7 +655,7 @@ func (x *DeleteUserResp) GetSuccess() bool {
 
 type ResetUserPasswordReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -682,9 +690,9 @@ func (*ResetUserPasswordReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ResetUserPasswordReq) GetId() uint64 {
+func (x *ResetUserPasswordReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -735,7 +743,7 @@ func (x *ResetUserPasswordResp) GetSuccess() bool {
 
 type UpdateSelfReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
@@ -774,9 +782,9 @@ func (*UpdateSelfReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *UpdateSelfReq) GetId() uint64 {
+func (x *UpdateSelfReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -863,7 +871,7 @@ func (x *UpdateSelfResp) GetAdmin() *AdminInfo {
 
 type UpdateUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
@@ -902,9 +910,9 @@ func (*UpdateUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *UpdateUserReq) GetId() uint64 {
+func (x *UpdateUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -1103,7 +1111,7 @@ func (x *GetUserListResp) GetTotal() int64 {
 
 type BanUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1138,9 +1146,9 @@ func (*BanUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *BanUserReq) GetId() uint64 {
+func (x *BanUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -1191,7 +1199,7 @@ func (x *BanUserResp) GetSuccess() bool {
 
 type UnBanUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1226,9 +1234,9 @@ func (*UnBanUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *UnBanUserReq) GetId() uint64 {
+func (x *UnBanUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -1281,35 +1289,36 @@ var File_proto_admin_proto protoreflect.FileDescriptor
 
 const file_proto_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/admin.proto\x12\x05admin\"\xcb\x01\n" +
-	"\tAdminInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
+	"\x11proto/admin.proto\x12\x05admin\"\xcd\x01\n" +
+	"\tAdminInfo\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12>\n" +
 	"\n" +
 	"extra_info\x18\x04 \x03(\v2\x1f.admin.AdminInfo.ExtraInfoEntryR\textraInfo\x1a<\n" +
 	"\x0eExtraInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe1\x01\n" +
-	"\bUserInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\x04R\x06status\x12=\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf9\x01\n" +
+	"\bUserInfo\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x14\n" +
+	"\x05score\x18\x02 \x01(\rR\x05score\x12\x1a\n" +
+	"\busername\x18\x03 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\x04R\x06status\x12=\n" +
 	"\n" +
-	"extra_info\x18\x05 \x03(\v2\x1e.admin.UserInfo.ExtraInfoEntryR\textraInfo\x1a<\n" +
+	"extra_info\x18\x06 \x03(\v2\x1e.admin.UserInfo.ExtraInfoEntryR\textraInfo\x1a<\n" +
 	"\x0eExtraInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1c\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1e\n" +
 	"\n" +
-	"GetUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"H\n" +
+	"GetUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"H\n" +
 	"\vGetUserResp\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.admin.UserInfoR\x04user\x12\x14\n" +
-	"\x05found\x18\x02 \x01(\bR\x05found\"\x1c\n" +
+	"\x05found\x18\x02 \x01(\bR\x05found\"\x1e\n" +
 	"\n" +
-	"GetSelfReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"5\n" +
+	"GetSelfReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"5\n" +
 	"\vGetSelfResp\x12&\n" +
 	"\x05admin\x18\x01 \x01(\v2\x10.admin.AdminInfoR\x05admin\"\xe1\x01\n" +
 	"\x0eCreateAdminReq\x12\x1a\n" +
@@ -1320,24 +1329,24 @@ const file_proto_admin_proto_rawDesc = "" +
 	"extra_info\x18\x04 \x03(\v2$.admin.CreateAdminReq.ExtraInfoEntryR\textraInfo\x1a<\n" +
 	"\x0eExtraInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"!\n" +
-	"\x0fCreateAdminResp\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"B\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"#\n" +
+	"\x0fCreateAdminResp\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"B\n" +
 	"\bLoginReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x1b\n" +
-	"\tLoginResp\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"\x1f\n" +
-	"\rDeleteUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"*\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x1d\n" +
+	"\tLoginResp\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"!\n" +
+	"\rDeleteUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"*\n" +
 	"\x0eDeleteUserResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"&\n" +
-	"\x14ResetUserPasswordReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"1\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"(\n" +
+	"\x14ResetUserPasswordReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"1\n" +
 	"\x15ResetUserPasswordResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xef\x01\n" +
-	"\rUpdateSelfReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xf1\x01\n" +
+	"\rUpdateSelfReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12B\n" +
@@ -1348,9 +1357,9 @@ const file_proto_admin_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"R\n" +
 	"\x0eUpdateSelfResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12&\n" +
-	"\x05admin\x18\x02 \x01(\v2\x10.admin.AdminInfoR\x05admin\"\xef\x01\n" +
-	"\rUpdateUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
+	"\x05admin\x18\x02 \x01(\v2\x10.admin.AdminInfoR\x05admin\"\xf1\x01\n" +
+	"\rUpdateUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12B\n" +
@@ -1368,14 +1377,14 @@ const file_proto_admin_proto_rawDesc = "" +
 	"\akeyword\x18\x03 \x01(\tR\akeyword\"L\n" +
 	"\x0fGetUserListResp\x12#\n" +
 	"\x04list\x18\x01 \x03(\v2\x0f.admin.UserInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\x1c\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\x1e\n" +
 	"\n" +
-	"BanUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"'\n" +
+	"BanUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"'\n" +
 	"\vBanUserResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x1e\n" +
-	"\fUnBanUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\")\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\" \n" +
+	"\fUnBanUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\")\n" +
 	"\rUnBanUserResp\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess2\x85\x05\n" +
 	"\fAdminService\x120\n" +
