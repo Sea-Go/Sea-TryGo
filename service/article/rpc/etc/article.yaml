@@ -16,5 +16,5 @@ KqPusherConf:
   Name: article-mq-pusher
   Group: "article-creation-group"
   Brokers:
-    - 127.0.0.1:9092
+    - 127.0.0.1:39092
   Topic: article-creation-topic
