@@ -1,12 +1,13 @@
 Name: user.rpc
-ListenOn: 0.0.0.0:28080
+ListenOn: 0.0.0.0:8080
 
 Postgres:
-  Host: 127.0.0.1
+  Host: "127.0.0.1"
   Port: "35432"
-  User: admin
+  User: "admin"
   Password: "Sea-TryGo"
-  DBName: first_db
+  DBName: "first_db"
+  Mode: "disable"
 
 Etcd:
   Hosts:
