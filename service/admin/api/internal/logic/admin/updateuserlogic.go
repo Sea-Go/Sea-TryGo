@@ -30,7 +30,7 @@ func NewUpdateuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.UpdateUserResp, err error) {
 
 	rpcReq := &pb.UpdateUserReq{
-		Id:        req.Id,
+		Uid:       req.Uid,
 		Username:  req.Username,
 		Password:  req.Password,
 		Email:     req.Email,
@@ -45,7 +45,7 @@ func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.Upda
 	return &types.UpdateUserResp{
 		Success: true,
 		User: types.UserInfo{
-			Id:        rpcResp.User.Id,
+			Uid:       rpcResp.User.Uid,
 			Username:  rpcResp.User.Username,
 			Email:     rpcResp.User.Email,
 			Status:    int64(rpcResp.User.Status),

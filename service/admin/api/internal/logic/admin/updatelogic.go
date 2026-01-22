@@ -34,12 +34,12 @@ func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfRe
 	if !ok {
 		return nil, errors.New("Token 解析异常")
 	}
-	id, err := userId.Int64()
+	uid, err := userId.Int64()
 	if err != nil {
 		return nil, err
 	}
 	rpcReq := &pb.UpdateSelfReq{
-		Id:        uint64(id),
+		Uid:       uid,
 		Username:  req.Username,
 		Password:  req.Password,
 		Email:     req.Email,
@@ -54,7 +54,7 @@ func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfRe
 	return &types.UpdateSelfResp{
 		Success: true,
 		Admin: types.AdminInfo{
-			Id:        rpcResp.Admin.Id,
+			Uid:       rpcResp.Admin.Uid,
 			Username:  rpcResp.Admin.Username,
 			Email:     rpcResp.Admin.Email,
 			Extrainfo: rpcResp.Admin.ExtraInfo,

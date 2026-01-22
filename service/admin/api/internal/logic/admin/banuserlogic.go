@@ -28,9 +28,9 @@ func NewBanuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BanuserLo
 }
 
 func (l *BanuserLogic) Banuser(req *types.BanUserReq) (resp *types.BanUserResp, err error) {
-	id := req.Id
+	uid := req.Uid
 	rpcReq := &pb.BanUserReq{
-		Id: id,
+		Uid: uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.BanUser(l.ctx, rpcReq)
 	if err != nil {

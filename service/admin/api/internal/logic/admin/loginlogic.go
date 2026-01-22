@@ -43,7 +43,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	now := time.Now().Unix()
 	accessSecret := l.svcCtx.Config.AdminAuth.AccessSecret
 	accessExpire := l.svcCtx.Config.AdminAuth.AccessExpire
-	token, err := jwt.GetToken(accessSecret, now, accessExpire, int64(rpcResp.Id))
+	token, err := jwt.GetToken(accessSecret, now, accessExpire, int64(rpcResp.Uid))
 	if err != nil {
 		return nil, err
 	}

@@ -34,12 +34,12 @@ func (l *GetselfLogic) Getself(req *types.GetSelfReq) (resp *types.GetSelfResp, 
 	if !ok {
 		return nil, errors.New("Token 解析异常")
 	}
-	id, err := userId.Int64()
+	uid, err := userId.Int64()
 	if err != nil {
 		return nil, err
 	}
 	rpcReq := &pb.GetSelfReq{
-		Id: uint64(id),
+		Uid: uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.GetSelf(l.ctx, rpcReq)
 	if err != nil {
@@ -47,7 +47,7 @@ func (l *GetselfLogic) Getself(req *types.GetSelfReq) (resp *types.GetSelfResp, 
 	}
 	return &types.GetSelfResp{
 		Admin: types.AdminInfo{
-			Id:        rpcResp.Admin.Id,
+			Uid:       rpcResp.Admin.Uid,
 			Username:  rpcResp.Admin.Username,
 			Email:     rpcResp.Admin.Email,
 			Extrainfo: rpcResp.Admin.ExtraInfo,

@@ -29,7 +29,7 @@ func NewResetuserpasswordLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 func (l *ResetuserpasswordLogic) Resetuserpassword(req *types.ResetUserPasswordReq) (resp *types.ResetUserPasswordResp, err error) {
 	rpcReq := &pb.ResetUserPasswordReq{
-		Id: req.Id,
+		Uid: req.Uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.ResetUserPassword(l.ctx, rpcReq)
 	if err != nil {
