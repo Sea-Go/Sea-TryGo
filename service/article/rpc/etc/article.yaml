@@ -19,6 +19,13 @@ KqPusherConf:
     - 127.0.0.1:39092
   Topic: article-creation-topic
 
+MinIO:
+  Endpoint: "127.0.0.1:39000"
+  AccessKeyID: "minioadmin"
+  SecretAccessKey: "minioadmin"
+  BucketName: "articles"
+  UseSSL: false
+
 KqConsumerConf:
   Name: dataclean-consumer
   Brokers:

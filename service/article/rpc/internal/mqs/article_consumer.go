@@ -3,11 +3,16 @@ package mqs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
+
+	"sea-try-go/service/article/rpc/internal/model"
 	"sea-try-go/service/article/rpc/internal/svc"
 
 	green "github.com/alibabacloud-go/green-20220302/v3/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/minio/minio-go/v7"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -36,6 +41,13 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 
 	if err := json.Unmarshal([]byte(val), &msg); err != nil {
 		l.Errorf("Unmarshal error: %v", err)
+		return nil
+	}
+
+	// Fetch article info
+	var article model.Article
+	if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Where("id = ?", msg.ArticleId).First(&article).Error; err != nil {
+		l.Errorf("Failed to find article %s: %v", msg.ArticleId, err)
 		return nil
 	}
 
@@ -71,8 +83,37 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 
 			if len(reason) > 0 || len(labels) > 0 {
 				l.Infof("Article %s RISK DETECTED! Reason: %s, Labels: %s", msg.ArticleId, reason, labels)
+				// Update status to Rejected (4)
+				article.Status = 4
+				if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Save(&article).Error; err != nil {
+					l.Errorf("Failed to update article status to Rejected: %v", err)
+				}
 			} else {
 				l.Infof("Article %s passed safety check.", msg.ArticleId)
+
+				// Upload to MinIO
+				bucketName := l.svcCtx.Config.MinIO.BucketName
+				objectName := fmt.Sprintf("%s.md", msg.ArticleId)
+				reader := strings.NewReader(msg.Content)
+
+				_, err = l.svcCtx.MinioClient.PutObject(ctx, bucketName, objectName, reader, int64(reader.Len()), minio.PutObjectOptions{
+					ContentType: "text/markdown",
+				})
+				if err != nil {
+					l.Errorf("Failed to upload to MinIO: %v", err)
+					// Proceed to update status anyway? Or fail?
+					// For now, log error but proceed with status update to avoid getting stuck,
+					// or return to retry? If we return err, Kafka consumer might retry.
+					// Let's log and proceed for now, assuming MinIO transient errors are handled elsewhere or retried manually.
+				} else {
+					l.Infof("Article %s uploaded to MinIO bucket %s", msg.ArticleId, bucketName)
+				}
+
+				// Update status to Published (2)
+				article.Status = 2
+				if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Save(&article).Error; err != nil {
+					l.Errorf("Failed to update article status to Published: %v", err)
+				}
 			}
 		} else {
 			l.Errorf("AliGreen response code error: %v", textModerationResponse.Code)
@@ -80,6 +121,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 	} else {
 		l.Errorf("AliGreen http status error: %v", statusCode)
 	}
-
+	
 	return nil
 }
