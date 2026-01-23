@@ -1,19 +1,56 @@
 package model
 
-import "time"
+import (
+	"context"
 
-type User struct {
-	Id         uint64            `gorm:"primaryKey"`
-	Username   string            `gorm:"column:username"`
-	Password   string            `gorm:"column:password"`
-	Email      string            `gorm:"column:email"`
-	Status     int64             `gorm:"column:status;default:0"`
-	Score      int32             `gorm:"column:score"`
-	ExtraInfo  map[string]string `gorm:"column:extra_info;serializer:json"`
-	CreateTime time.Time         `gorm:"column:create_time;autoCreateTime"`
-	UpdateTime time.Time         `gorm:"column:update_time;autoUpdateTime"`
+	"gorm.io/gorm"
+)
+
+type UserModel struct {
+	conn *gorm.DB
 }
 
-func (User) TableName() string {
-	return "users"
+func NewUserModel(db *gorm.DB) *UserModel {
+	return &UserModel{
+		conn: db,
+	}
+}
+
+func (m *UserModel) FindOneByUserName(ctx context.Context, username string) (*User, error) {
+	var user User
+	err := m.conn.WithContext(ctx).Where("username = ?", username).First(&user).Error
+	if err == nil {
+		return &user, nil
+	}
+	if err == gorm.ErrRecordNotFound {
+		return nil, ErrorNotFound
+	}
+	return nil, err
+}
+
+func (m *UserModel) FindOneByUid(ctx context.Context, uid int64) (*User, error) {
+	var user User
+	err := m.conn.WithContext(ctx).Where("uid = ?", uid).First(&user).Error
+	if err == nil {
+		return &user, nil
+	}
+	if err == gorm.ErrRecordNotFound {
+		return nil, ErrorNotFound
+	}
+	return nil, err
+}
+
+func (m *UserModel) UpdateUserById(ctx context.Context, uid int64, newUser *User) error {
+	err := m.conn.WithContext(ctx).Model(&User{}).Where("uid = ?", uid).Updates(newUser).Error
+	return err
+}
+
+func (m *UserModel) Insert(ctx context.Context, user *User) error {
+	err := m.conn.WithContext(ctx).Create(user).Error
+	return err
+}
+
+func (m *UserModel) DeleteUserByUid(ctx context.Context, uid int64) error {
+	err := m.conn.WithContext(ctx).Where("uid = ?", uid).Delete(&User{}).Error
+	return err
 }

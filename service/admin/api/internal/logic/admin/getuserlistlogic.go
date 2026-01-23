@@ -42,7 +42,7 @@ func (l *GetuserlistLogic) Getuserlist(req *types.GetUserListReq) (resp *types.G
 	if rpcResp.List != nil {
 		for _, v := range rpcResp.List {
 			list = append(list, types.UserInfo{
-				Id:        v.Id,
+				Uid:       v.Uid,
 				Username:  v.Username,
 				Email:     v.Email,
 				Status:    int64(v.Status),

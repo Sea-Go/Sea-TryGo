@@ -5,13 +5,14 @@ package types
 
 type AdminInfo struct {
 	Id        uint64            `json:"id"`
+	Uid       int64             `json:"uid"`
 	Username  string            `json:"username"`
 	Email     string            `json:"email"`
 	Extrainfo map[string]string `json:"extra_info,omitempty"`
 }
 
 type BanUserReq struct {
-	Id uint64 `json:"id"`
+	Uid int64 `json:"uid"`
 }
 
 type BanUserResp struct {
@@ -21,16 +22,16 @@ type BanUserResp struct {
 type CreateAdminReq struct {
 	Username  string            `json:"username"`
 	Password  string            `json:"password"`
-	Email     string            `json:"email,optional"`
-	Extrainfo map[string]string `json:"extra_info,optional"`
+	Email     string            `json:"email,omitempty"`
+	Extrainfo map[string]string `json:"extra_info,omitempty"`
 }
 
 type CreateAdminResp struct {
-	Id uint64 `json:"id"`
+	Uid int64 `json:"uid"`
 }
 
 type DeleteUserReq struct {
-	Id uint64 `json:"id"`
+	Uid int64 `json:"uid"`
 }
 
 type DeleteUserResp struct {
@@ -47,7 +48,7 @@ type GetSelfResp struct {
 type GetUserListReq struct {
 	Page     int64  `form:"page,default=1"`
 	PageSize int64  `form:"page_size,default=20"`
-	Keyword  string `form:"keyword,optional"`
+	Keyword  string `form:"keyword,omitempty"`
 }
 
 type GetUserListResp struct {
@@ -56,7 +57,7 @@ type GetUserListResp struct {
 }
 
 type GetUserReq struct {
-	Id uint64 `form:"id"`
+	Uid int64 `form:"uid"`
 }
 
 type GetUserResp struct {
@@ -74,7 +75,7 @@ type LoginResp struct {
 }
 
 type ResetUserPasswordReq struct {
-	Id uint64 `json:"id"`
+	Uid int64 `json:"uid"`
 }
 
 type ResetUserPasswordResp struct {
@@ -82,7 +83,7 @@ type ResetUserPasswordResp struct {
 }
 
 type UnBanUserReq struct {
-	Id uint64 `json:"id"`
+	Uid int64 `json:"uid"`
 }
 
 type UnBanUserResp struct {
@@ -90,10 +91,10 @@ type UnBanUserResp struct {
 }
 
 type UpdateSelfReq struct {
-	Username  string            `json:"username,optional"`
-	Password  string            `json:"password,optional"`
-	Email     string            `json:"email,optional"`
-	Extrainfo map[string]string `json:"extra_info,optional"`
+	Username  string            `json:"username,omitempty"`
+	Password  string            `json:"password,omitempty"`
+	Email     string            `json:"email,omitempty"`
+	Extrainfo map[string]string `json:"extra_info,omitempty"`
 }
 
 type UpdateSelfResp struct {
@@ -102,11 +103,11 @@ type UpdateSelfResp struct {
 }
 
 type UpdateUserReq struct {
-	Id        uint64            `json:"id"`
-	Username  string            `json:"username,optional"`
-	Password  string            `json:"password,optional"`
-	Email     string            `json:"email,optional"`
-	Extrainfo map[string]string `json:"extra_info,optional"`
+	Uid       int64             `json:"uid"`
+	Username  string            `json:"username,omitempty"`
+	Password  string            `json:"password,omitempty"`
+	Email     string            `json:"email,omitempty"`
+	Extrainfo map[string]string `json:"extra_info,omitempty"`
 }
 
 type UpdateUserResp struct {
@@ -116,6 +117,7 @@ type UpdateUserResp struct {
 
 type UserInfo struct {
 	Id        uint64            `json:"id"`
+	Uid       int64             `json:"uid"`
 	Username  string            `json:"username"`
 	Status    int64             `json:"status"`
 	Email     string            `json:"email,omitempty"`

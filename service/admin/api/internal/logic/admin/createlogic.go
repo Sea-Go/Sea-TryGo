@@ -42,6 +42,6 @@ func (l *CreateLogic) Create(req *types.CreateAdminReq) (resp *types.CreateAdmin
 	}
 
 	return &types.CreateAdminResp{
-		Id: rpcResp.Id,
+		Uid: rpcResp.Uid,
 	}, nil
 }

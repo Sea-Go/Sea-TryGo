@@ -29,7 +29,7 @@ func NewUnbanuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Unbanus
 
 func (l *UnbanuserLogic) Unbanuser(req *types.UnBanUserReq) (resp *types.UnBanUserResp, err error) {
 	rpcReq := &pb.UnBanUserReq{
-		Id: req.Id,
+		Uid: req.Uid,
 	}
 	rpcResp, er := l.svcCtx.AdminRpc.UnBanUser(l.ctx, rpcReq)
 	if er != nil {
