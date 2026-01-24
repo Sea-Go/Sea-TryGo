@@ -266,10 +266,9 @@ func traceIDFrom(ctx context.Context) string {
 }
 
 // captureCallsite
-//	- file_line xxx.go:123
-// 	- call_path xxx.go:Struct.Method
-// 	- call_chain Entry -> ... -> Struct.Method
-
+//   - file_line xxx.go:123
+//   - call_path xxx.go:Struct.Method
+//   - call_chain Entry -> ... -> Struct.Method
 func captureCallsite(skip int) (fileLine string, callPath string, callChain string) {
 	// runtime.Callers 的 skip 语义 跳过 runtime.Callers 自身 + captureCallsite
 	// 所以这里额外 +2
