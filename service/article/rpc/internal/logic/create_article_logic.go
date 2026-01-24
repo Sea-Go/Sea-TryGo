@@ -44,7 +44,7 @@ func (l *CreateArticleLogic) CreateArticle(in *__.CreateArticleRequest) (*__.Cre
 		Status:        3,
 	}
 
-	if err := l.svcCtx.ArticleRepo.Db.WithContext(l.ctx).Create(newArticle).Error; err != nil {
+	if err := l.svcCtx.ArticleRepo.Insert(l.ctx, newArticle); err != nil {
 		l.Logger.Errorf("CreateArticle db error: %v", err)
 		return nil, err
 	}

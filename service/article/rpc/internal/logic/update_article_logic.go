@@ -3,6 +3,9 @@ package logic
 import (
 	"context"
 
+	"fmt"
+
+	"sea-try-go/service/article/rpc/internal/model"
 	"sea-try-go/service/article/rpc/internal/svc"
 	"sea-try-go/service/article/rpc/pb"
 
@@ -24,7 +27,47 @@ func NewUpdateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateArticleLogic) UpdateArticle(in *__.UpdateArticleRequest) (*__.UpdateArticleResponse, error) {
-	// todo: add your logic here and delete this line
+	// 1. Check if article exists
+	article, err := l.svcCtx.ArticleRepo.FindOne(l.ctx, in.ArticleId)
+	if err != nil {
+		l.Logger.Errorf("UpdateArticle FindOne error: %v", err)
+		return nil, err
+	}
+	if article == nil {
+		return nil, fmt.Errorf("article not found")
+	}
 
-	return &__.UpdateArticleResponse{}, nil
+	// 2. Update fields if they are provided (not empty/default)
+	if in.Title != nil {
+		article.Title = *in.Title
+	}
+	if in.Brief != nil {
+		article.Brief = *in.Brief
+	}
+	if in.MarkdownContent != nil {
+		article.Content = *in.MarkdownContent
+	}
+	if in.CoverImageUrl != nil {
+		article.CoverImageURL = *in.CoverImageUrl
+	}
+	if in.ManualTypeTag != nil {
+		article.ManualTypeTag = *in.ManualTypeTag
+	}
+	if len(in.SecondaryTags) > 0 {
+		article.SecondaryTags = model.StringArray(in.SecondaryTags)
+	}
+	// Status update logic might need more validation in real world, but for now we trust the input
+	if *in.Status != __.ArticleStatus_ARTICLE_STATUS_UNSPECIFIED {
+		article.Status = int32(in.Status.Number())
+	}
+
+	// 3. Save updates
+	if err := l.svcCtx.ArticleRepo.Update(l.ctx, article); err != nil {
+		l.Logger.Errorf("UpdateArticle Update error: %v", err)
+		return nil, err
+	}
+
+	return &__.UpdateArticleResponse{
+		Success: true,
+	}, nil
 }
