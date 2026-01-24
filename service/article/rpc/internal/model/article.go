@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -71,72 +72,91 @@ func (m *JSONMap) Scan(value interface{}) error {
 	return json.Unmarshal(b, m)
 }
 
-// --- Interface & Implementation ---
+// --- ArticleRepo Methods ---
 
-type ArticleModel interface {
-	Insert(ctx context.Context, article *Article) error
-	FindOne(ctx context.Context, id string) (*Article, error)
-	Update(ctx context.Context, article *Article) error
-	Delete(ctx context.Context, id string) error
-	List(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*Article, int64, error)
+func (m *ArticleRepo) Insert(ctx context.Context, article *Article) error {
+	return m.Db.WithContext(ctx).Create(article).Error
 }
 
-type defaultArticleModel struct {
-	db *gorm.DB
-}
-
-func NewArticleModel(db *gorm.DB) ArticleModel {
-	return &defaultArticleModel{
-		db: db,
-	}
-}
-
-func (m *defaultArticleModel) Insert(ctx context.Context, article *Article) error {
-	return m.db.WithContext(ctx).Create(article).Error
-}
-
-func (m *defaultArticleModel) FindOne(ctx context.Context, id string) (*Article, error) {
+func (m *ArticleRepo) FindOne(ctx context.Context, id string) (*Article, error) {
 	var article Article
-	err := m.db.WithContext(ctx).Where("id = ?", id).First(&article).Error
+	err := m.Db.WithContext(ctx).Where("id = ?", id).First(&article).Error
 	if err != nil {
 		return nil, err
 	}
 	return &article, nil
 }
 
-func (m *defaultArticleModel) Update(ctx context.Context, article *Article) error {
-	return m.db.WithContext(ctx).Save(article).Error
+func (m *ArticleRepo) Update(ctx context.Context, article *Article) error {
+	return m.Db.WithContext(ctx).Save(article).Error
 }
 
-func (m *defaultArticleModel) Delete(ctx context.Context, id string) error {
-	return m.db.WithContext(ctx).Delete(&Article{}, "id = ?", id).Error
+func (m *ArticleRepo) Delete(ctx context.Context, id string) error {
+	return m.Db.WithContext(ctx).Delete(&Article{}, "id = ?", id).Error
 }
 
-func (m *defaultArticleModel) List(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*Article, int64, error) {
+func (m *ArticleRepo) IncrViewCount(ctx context.Context, id string) error {
+	return m.Db.WithContext(ctx).Model(&Article{}).Where("id = ?", id).
+		UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
+}
+
+type ListArticlesOption struct {
+	Page          int
+	PageSize      int
+	SortBy        string
+	Desc          bool
+	ManualTypeTag string
+	SecondaryTag  string
+	AuthorId      string
+	RelatedGameId string
+}
+
+func (m *ArticleRepo) List(ctx context.Context, opt ListArticlesOption) ([]*Article, int64, error) {
 	var articles []*Article
 	var total int64
 
-	query := m.db.WithContext(ctx).Model(&Article{})
+	db := m.Db.WithContext(ctx).Model(&Article{})
 
-	// Dynamic filtering
-	if val, ok := filters["author_id"]; ok && val != "" {
-		query = query.Where("author_id = ?", val)
+	if opt.ManualTypeTag != "" {
+		db = db.Where("manual_type_tag = ?", opt.ManualTypeTag)
 	}
-	if val, ok := filters["manual_type_tag"]; ok && val != "" {
-		query = query.Where("manual_type_tag = ?", val)
+	if opt.SecondaryTag != "" {
+		db = db.Where("secondary_tags @> ?", fmt.Sprintf(`["%s"]`, opt.SecondaryTag))
 	}
-	if val, ok := filters["status"]; ok {
-		query = query.Where("status = ?", val)
+	if opt.AuthorId != "" {
+		db = db.Where("author_id = ?", opt.AuthorId)
+	}
+	if opt.RelatedGameId != "" {
+		db = db.Where("ext_info ->> 'related_game_id' = ?", opt.RelatedGameId)
 	}
 
-	err := query.Count(&total).Error
-	if err != nil {
+	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	offset := (page - 1) * pageSize
-	err = query.Offset(offset).Limit(pageSize).Order("created_at desc").Find(&articles).Error
-	if err != nil {
+	offset := (opt.Page - 1) * opt.PageSize
+	if offset < 0 {
+		offset = 0
+	}
+
+	order := "created_at desc"
+	if opt.SortBy != "" {
+		switch opt.SortBy {
+		case "create_time":
+			order = "created_at"
+		case "view_count":
+			order = "view_count"
+		case "like_count":
+			order = "like_count"
+		}
+		if opt.Desc {
+			order += " desc"
+		} else {
+			order += " asc"
+		}
+	}
+
+	if err := db.Order(order).Offset(offset).Limit(opt.PageSize).Find(&articles).Error; err != nil {
 		return nil, 0, err
 	}
 

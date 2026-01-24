@@ -24,7 +24,12 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 }
 
 func (l *DeleteArticleLogic) DeleteArticle(in *__.DeleteArticleRequest) (*__.DeleteArticleResponse, error) {
-	// todo: add your logic here and delete this line
+	if err := l.svcCtx.ArticleRepo.Delete(l.ctx, in.ArticleId); err != nil {
+		l.Logger.Errorf("DeleteArticle db error: %v", err)
+		return nil, err
+	}
 
-	return &__.DeleteArticleResponse{}, nil
+	return &__.DeleteArticleResponse{
+		Success: true,
+	}, nil
 }
