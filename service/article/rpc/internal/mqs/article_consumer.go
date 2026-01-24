@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"sea-try-go/service/article/rpc/internal/model"
 	"sea-try-go/service/article/rpc/internal/svc"
 
 	green "github.com/alibabacloud-go/green-20220302/v3/client"
@@ -45,8 +44,8 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 	}
 
 	// Fetch article info
-	var article model.Article
-	if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Where("id = ?", msg.ArticleId).First(&article).Error; err != nil {
+	article, err := l.svcCtx.ArticleRepo.FindOne(ctx, msg.ArticleId)
+	if err != nil {
 		l.Errorf("Failed to find article %s: %v", msg.ArticleId, err)
 		return nil
 	}
@@ -85,7 +84,7 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 				l.Infof("Article %s RISK DETECTED! Reason: %s, Labels: %s", msg.ArticleId, reason, labels)
 				// Update status to Rejected (4)
 				article.Status = 4
-				if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Save(&article).Error; err != nil {
+				if err := l.svcCtx.ArticleRepo.Update(ctx, article); err != nil {
 					l.Errorf("Failed to update article status to Rejected: %v", err)
 				}
 			} else {
@@ -111,7 +110,7 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 
 				// Update status to Published (2)
 				article.Status = 2
-				if err := l.svcCtx.ArticleRepo.Db.WithContext(ctx).Save(&article).Error; err != nil {
+				if err := l.svcCtx.ArticleRepo.Update(ctx, article); err != nil {
 					l.Errorf("Failed to update article status to Published: %v", err)
 				}
 			}
@@ -121,6 +120,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 	} else {
 		l.Errorf("AliGreen http status error: %v", statusCode)
 	}
-	
+
 	return nil
 }
