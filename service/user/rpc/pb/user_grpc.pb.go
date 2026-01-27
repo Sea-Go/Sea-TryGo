@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v3.19.4
-// source: proto/user.proto
+// source: user.proto
 
 package pb
 
@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetUser_FullMethodName    = "/user.UserService/GetUser"
-	UserService_Register_FullMethodName   = "/user.UserService/Register"
-	UserService_Login_FullMethodName      = "/user.UserService/Login"
-	UserService_Logout_FullMethodName     = "/user.UserService/Logout"
-	UserService_UpdateUser_FullMethodName = "/user.UserService/UpdateUser"
-	UserService_DeleteUser_FullMethodName = "/user.UserService/DeleteUser"
+	UserService_GetUser_FullMethodName          = "/user.UserService/GetUser"
+	UserService_Register_FullMethodName         = "/user.UserService/Register"
+	UserService_Login_FullMethodName            = "/user.UserService/Login"
+	UserService_Logout_FullMethodName           = "/user.UserService/Logout"
+	UserService_UpdateUser_FullMethodName       = "/user.UserService/UpdateUser"
+	UserService_DeleteUser_FullMethodName       = "/user.UserService/DeleteUser"
+	UserService_UpdateUserPoints_FullMethodName = "/user.UserService/UpdateUserPoints"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -37,6 +38,7 @@ type UserServiceClient interface {
 	Logout(ctx context.Context, in *LogoutReq, opts ...grpc.CallOption) (*LogoutResp, error)
 	UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UpdateUserResp, error)
 	DeleteUser(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*DeleteUserResp, error)
+	UpdateUserPoints(ctx context.Context, in *UpdateUserPointsReq, opts ...grpc.CallOption) (*UpdateUserPointsResp, error)
 }
 
 type userServiceClient struct {
@@ -107,6 +109,16 @@ func (c *userServiceClient) DeleteUser(ctx context.Context, in *DeleteUserReq, o
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateUserPoints(ctx context.Context, in *UpdateUserPointsReq, opts ...grpc.CallOption) (*UpdateUserPointsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserPointsResp)
+	err := c.cc.Invoke(ctx, UserService_UpdateUserPoints_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type UserServiceServer interface {
 	Logout(context.Context, *LogoutReq) (*LogoutResp, error)
 	UpdateUser(context.Context, *UpdateUserReq) (*UpdateUserResp, error)
 	DeleteUser(context.Context, *DeleteUserReq) (*DeleteUserResp, error)
+	UpdateUserPoints(context.Context, *UpdateUserPointsReq) (*UpdateUserPointsResp, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserReq
 }
 func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteUserReq) (*DeleteUserResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateUserPoints(context.Context, *UpdateUserPointsReq) (*UpdateUserPointsResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserPoints not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -274,6 +290,24 @@ func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateUserPoints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserPointsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateUserPoints(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateUserPoints_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateUserPoints(ctx, req.(*UpdateUserPointsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,7 +339,11 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteUser",
 			Handler:    _UserService_DeleteUser_Handler,
 		},
+		{
+			MethodName: "UpdateUserPoints",
+			Handler:    _UserService_UpdateUserPoints_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/user.proto",
+	Metadata: "user.proto",
 }

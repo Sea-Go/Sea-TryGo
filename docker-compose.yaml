@@ -58,6 +58,14 @@ services:
       - redis
     restart: unless-stopped
 
+  # --- Beanstalkd ---
+  beanstalkd:
+    image: beanstalkd:latest
+    container_name: beanstalkd
+    ports:
+      - "41300:11300"
+    restart: unless-stopped
+
   # --- 图数据库 (Neo4j) ---
   neo4j:
     image: neo4j:latest

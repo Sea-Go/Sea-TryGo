@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"sea-try-go/service/points/rpc/internal/svc"
-	"sea-try-go/service/points/rpc/pb"
+	pb "sea-try-go/service/points/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +23,8 @@ func NewDecPointsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DecPoin
 	}
 }
 
-func (l *DecPointsLogic) DecPoints(in *__.DecPointsReq) (*__.DecPointsResp, error) {
+func (l *DecPointsLogic) DecPoints(in *pb.DecPointsReq) (*pb.DecPointsResp, error) {
 	// todo: add your logic here and delete this line
 
-	return &__.DecPointsResp{}, nil
+	return &pb.DecPointsResp{}, nil
 }
