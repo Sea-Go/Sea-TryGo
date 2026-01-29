@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"sea-try-go/common/utils"
 	"sea-try-go/service/article/rpc/internal/model"
 	"sea-try-go/service/article/rpc/internal/svc"
 	"sea-try-go/service/article/rpc/pb"
+	"sea-try-go/service/common/snowflake"
 )
 
 type CreateArticleLogic struct {

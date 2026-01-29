@@ -37,7 +37,6 @@ func (l *GetArticleLogic) GetArticle(in *__.GetArticleRequest) (*__.GetArticleRe
 	if in.IncrView {
 		if err := l.svcCtx.ArticleRepo.IncrViewCount(l.ctx, in.ArticleId); err != nil {
 			l.Logger.Errorf("IncrViewCount error: %v", err)
-			// Continue even if incr fails
 		}
 		article.ViewCount++
 	}

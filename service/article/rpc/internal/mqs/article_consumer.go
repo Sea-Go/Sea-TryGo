@@ -43,7 +43,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 		return nil
 	}
 
-	// Fetch article info
 	article, err := l.svcCtx.ArticleRepo.FindOne(ctx, msg.ArticleId)
 	if err != nil {
 		l.Errorf("Failed to find article %s: %v", msg.ArticleId, err)
@@ -65,7 +64,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 		ServiceParameters: tea.String(string(serviceParameters)),
 	}
 
-	// 使用传入的 ctx
 	result, err := l.svcCtx.GreenClient.TextModeration(&request)
 	if err != nil {
 		l.Errorf("AliGreen API error: %v", err)
@@ -82,7 +80,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 
 			if len(reason) > 0 || len(labels) > 0 {
 				l.Infof("Article %s RISK DETECTED! Reason: %s, Labels: %s", msg.ArticleId, reason, labels)
-				// Update status to Rejected (4)
 				article.Status = 4
 				if err := l.svcCtx.ArticleRepo.Update(ctx, article); err != nil {
 					l.Errorf("Failed to update article status to Rejected: %v", err)
@@ -90,7 +87,6 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 			} else {
 				l.Infof("Article %s passed safety check.", msg.ArticleId)
 
-				// Upload to MinIO
 				bucketName := l.svcCtx.Config.MinIO.BucketName
 				objectName := fmt.Sprintf("%s.md", msg.ArticleId)
 				reader := strings.NewReader(msg.Content)
@@ -100,15 +96,10 @@ func (l *ArticleConsumer) Consume(ctx context.Context, key, val string) error {
 				})
 				if err != nil {
 					l.Errorf("Failed to upload to MinIO: %v", err)
-					// Proceed to update status anyway? Or fail?
-					// For now, log error but proceed with status update to avoid getting stuck,
-					// or return to retry? If we return err, Kafka consumer might retry.
-					// Let's log and proceed for now, assuming MinIO transient errors are handled elsewhere or retried manually.
 				} else {
 					l.Infof("Article %s uploaded to MinIO bucket %s", msg.ArticleId, bucketName)
 				}
 
-				// Update status to Published (2)
 				article.Status = 2
 				if err := l.svcCtx.ArticleRepo.Update(ctx, article); err != nil {
 					l.Errorf("Failed to update article status to Published: %v", err)

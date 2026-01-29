@@ -27,7 +27,6 @@ func NewUpdateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateArticleLogic) UpdateArticle(in *__.UpdateArticleRequest) (*__.UpdateArticleResponse, error) {
-	// 1. Check if article exists
 	article, err := l.svcCtx.ArticleRepo.FindOne(l.ctx, in.ArticleId)
 	if err != nil {
 		l.Logger.Errorf("UpdateArticle FindOne error: %v", err)
@@ -37,7 +36,6 @@ func (l *UpdateArticleLogic) UpdateArticle(in *__.UpdateArticleRequest) (*__.Upd
 		return nil, fmt.Errorf("article not found")
 	}
 
-	// 2. Update fields if they are provided (not empty/default)
 	if in.Title != nil {
 		article.Title = *in.Title
 	}
@@ -56,12 +54,10 @@ func (l *UpdateArticleLogic) UpdateArticle(in *__.UpdateArticleRequest) (*__.Upd
 	if len(in.SecondaryTags) > 0 {
 		article.SecondaryTags = model.StringArray(in.SecondaryTags)
 	}
-	// Status update logic might need more validation in real world, but for now we trust the input
 	if in.Status != nil && *in.Status != __.ArticleStatus_ARTICLE_STATUS_UNSPECIFIED {
 		article.Status = int32(in.Status.Number())
 	}
 
-	// 3. Save updates
 	if err := l.svcCtx.ArticleRepo.Update(l.ctx, article); err != nil {
 		l.Logger.Errorf("UpdateArticle Update error: %v", err)
 		return nil, err

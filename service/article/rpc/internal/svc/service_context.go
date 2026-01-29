@@ -10,9 +10,9 @@ import (
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
 	"log"
-	"sea-try-go/common/utils"
 	"sea-try-go/service/article/rpc/internal/config"
 	"sea-try-go/service/article/rpc/internal/model"
+	"sea-try-go/service/common/snowflake"
 )
 
 type ServiceContext struct {
