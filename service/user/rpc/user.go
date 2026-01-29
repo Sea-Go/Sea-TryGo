@@ -7,7 +7,7 @@ import (
 	"sea-try-go/service/user/rpc/internal/config"
 	"sea-try-go/service/user/rpc/internal/server"
 	"sea-try-go/service/user/rpc/internal/svc"
-	"sea-try-go/service/user/rpc/pb"
+	__ "sea-try-go/service/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"

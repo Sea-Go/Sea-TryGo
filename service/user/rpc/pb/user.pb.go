@@ -4,7 +4,7 @@
 // 	protoc        v3.19.4
 // source: proto/user.proto
 
-package __
+package pb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -23,12 +23,11 @@ const (
 
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Score         uint32                 `protobuf:"varint,2,opt,name=score,proto3" json:"score,omitempty"`
 	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
-	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
-	Email         string                 `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
-	ExtraInfo     map[string]string      `protobuf:"bytes,6,rep,name=extra_info,json=extraInfo,proto3" json:"extra_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` //这里对应我们在数据库的json字段
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	ExtraInfo     map[string]string      `protobuf:"bytes,5,rep,name=extra_info,json=extraInfo,proto3" json:"extra_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` //这里对应我们在数据库的json字段
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,9 +62,9 @@ func (*UserInfo) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserInfo) GetId() uint64 {
+func (x *UserInfo) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -80,13 +79,6 @@ func (x *UserInfo) GetScore() uint32 {
 func (x *UserInfo) GetUsername() string {
 	if x != nil {
 		return x.Username
-	}
-	return ""
-}
-
-func (x *UserInfo) GetPassword() string {
-	if x != nil {
-		return x.Password
 	}
 	return ""
 }
@@ -107,7 +99,7 @@ func (x *UserInfo) GetExtraInfo() map[string]string {
 
 type GetUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,9 +134,9 @@ func (*GetUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetUserReq) GetId() uint64 {
+func (x *GetUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -271,7 +263,7 @@ func (x *CreateUserReq) GetExtraInfo() map[string]string {
 
 type CreateUserResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -306,9 +298,9 @@ func (*CreateUserResp) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *CreateUserResp) GetId() uint64 {
+func (x *CreateUserResp) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -367,7 +359,8 @@ func (x *LoginReq) GetPassword() string {
 
 type LoginResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	Status        uint64                 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -402,11 +395,18 @@ func (*LoginResp) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *LoginResp) GetToken() string {
+func (x *LoginResp) GetUid() int64 {
 	if x != nil {
-		return x.Token
+		return x.Uid
 	}
-	return ""
+	return 0
+}
+
+func (x *LoginResp) GetStatus() uint64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
 }
 
 type LogoutReq struct {
@@ -499,7 +499,7 @@ func (x *LogoutResp) GetSuccess() bool {
 
 type UpdateUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
@@ -538,9 +538,9 @@ func (*UpdateUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *UpdateUserReq) GetId() uint64 {
+func (x *UpdateUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -619,7 +619,7 @@ func (x *UpdateUserResp) GetUser() *UserInfo {
 
 type DeleteUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -654,9 +654,9 @@ func (*DeleteUserReq) Descriptor() ([]byte, []int) {
 	return file_proto_user_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *DeleteUserReq) GetId() uint64 {
+func (x *DeleteUserReq) GetUid() int64 {
 	if x != nil {
-		return x.Id
+		return x.Uid
 	}
 	return 0
 }
@@ -709,21 +709,20 @@ var File_proto_user_proto protoreflect.FileDescriptor
 
 const file_proto_user_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/user.proto\x12\x04user\"\xfa\x01\n" +
-	"\bUserInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x14\n" +
+	"\x10proto/user.proto\x12\x04user\"\xe0\x01\n" +
+	"\bUserInfo\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x14\n" +
 	"\x05score\x18\x02 \x01(\rR\x05score\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x14\n" +
-	"\x05email\x18\x05 \x01(\tR\x05email\x12<\n" +
+	"\busername\x18\x03 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12<\n" +
 	"\n" +
-	"extra_info\x18\x06 \x03(\v2\x1d.user.UserInfo.ExtraInfoEntryR\textraInfo\x1a<\n" +
+	"extra_info\x18\x05 \x03(\v2\x1d.user.UserInfo.ExtraInfoEntryR\textraInfo\x1a<\n" +
 	"\x0eExtraInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1c\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1e\n" +
 	"\n" +
-	"GetUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"G\n" +
+	"GetUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"G\n" +
 	"\vGetUserResp\x12\"\n" +
 	"\x04user\x18\x01 \x01(\v2\x0e.user.UserInfoR\x04user\x12\x14\n" +
 	"\x05found\x18\x02 \x01(\bR\x05found\"\xde\x01\n" +
@@ -735,21 +734,22 @@ const file_proto_user_proto_rawDesc = "" +
 	"extra_info\x18\x04 \x03(\v2\".user.CreateUserReq.ExtraInfoEntryR\textraInfo\x1a<\n" +
 	"\x0eExtraInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\" \n" +
-	"\x0eCreateUserResp\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"B\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\"\n" +
+	"\x0eCreateUserResp\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"B\n" +
 	"\bLoginReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"!\n" +
-	"\tLoginResp\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"!\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"5\n" +
+	"\tLoginResp\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\x04R\x06status\"!\n" +
 	"\tLogoutReq\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"&\n" +
 	"\n" +
 	"LogoutResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xee\x01\n" +
-	"\rUpdateUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xf0\x01\n" +
+	"\rUpdateUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12A\n" +
@@ -759,21 +759,20 @@ const file_proto_user_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"4\n" +
 	"\x0eUpdateUserResp\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.user.UserInfoR\x04user\"\x1f\n" +
-	"\rDeleteUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"*\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.user.UserInfoR\x04user\"!\n" +
+	"\rDeleteUserReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"*\n" +
 	"\x0eDeleteUserResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\xbf\x02\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xbd\x02\n" +
 	"\vUserService\x12.\n" +
-	"\aGetUser\x12\x10.user.GetUserReq\x1a\x11.user.GetUserResp\x127\n" +
-	"\n" +
-	"CreateUser\x12\x13.user.CreateUserReq\x1a\x14.user.CreateUserResp\x12(\n" +
+	"\aGetUser\x12\x10.user.GetUserReq\x1a\x11.user.GetUserResp\x125\n" +
+	"\bRegister\x12\x13.user.CreateUserReq\x1a\x14.user.CreateUserResp\x12(\n" +
 	"\x05Login\x12\x0e.user.LoginReq\x1a\x0f.user.LoginResp\x12+\n" +
 	"\x06Logout\x12\x0f.user.LogoutReq\x1a\x10.user.LogoutResp\x127\n" +
 	"\n" +
 	"UpdateUser\x12\x13.user.UpdateUserReq\x1a\x14.user.UpdateUserResp\x127\n" +
 	"\n" +
-	"DeleteUser\x12\x13.user.DeleteUserReq\x1a\x14.user.DeleteUserRespB\x03Z\x01.b\x06proto3"
+	"DeleteUser\x12\x13.user.DeleteUserReq\x1a\x14.user.DeleteUserRespB\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_proto_user_proto_rawDescOnce sync.Once
@@ -813,13 +812,13 @@ var file_proto_user_proto_depIdxs = []int32{
 	15, // 3: user.UpdateUserReq.extra_info:type_name -> user.UpdateUserReq.ExtraInfoEntry
 	0,  // 4: user.UpdateUserResp.user:type_name -> user.UserInfo
 	1,  // 5: user.UserService.GetUser:input_type -> user.GetUserReq
-	3,  // 6: user.UserService.CreateUser:input_type -> user.CreateUserReq
+	3,  // 6: user.UserService.Register:input_type -> user.CreateUserReq
 	5,  // 7: user.UserService.Login:input_type -> user.LoginReq
 	7,  // 8: user.UserService.Logout:input_type -> user.LogoutReq
 	9,  // 9: user.UserService.UpdateUser:input_type -> user.UpdateUserReq
 	11, // 10: user.UserService.DeleteUser:input_type -> user.DeleteUserReq
 	2,  // 11: user.UserService.GetUser:output_type -> user.GetUserResp
-	4,  // 12: user.UserService.CreateUser:output_type -> user.CreateUserResp
+	4,  // 12: user.UserService.Register:output_type -> user.CreateUserResp
 	6,  // 13: user.UserService.Login:output_type -> user.LoginResp
 	8,  // 14: user.UserService.Logout:output_type -> user.LogoutResp
 	10, // 15: user.UserService.UpdateUser:output_type -> user.UpdateUserResp
