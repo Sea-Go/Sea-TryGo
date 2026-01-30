@@ -5,7 +5,7 @@ Port: 8889
 Log:
   ServiceName: admincenter
   Mode: file       
-  Path: log/admin 
+  Path: ../../../../log/admin
 
 AdminAuth:
   AccessSecret : "yU-hCm)2*?NQmWG"

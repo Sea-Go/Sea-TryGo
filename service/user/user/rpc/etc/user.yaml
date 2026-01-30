@@ -4,7 +4,7 @@ ListenOn: 0.0.0.0:8080
 Log:
   ServiceName: user-rpc
   Mode: file
-  Path: log/user-rpc
+  Path: ../../../../log/user-rpc
 
 Postgres:
   Host: "127.0.0.1"
@@ -16,10 +16,5 @@ Postgres:
 
 Etcd:
   Hosts:
-   - 127.0.0.1:32379
+    - 127.0.0.1:32379
   Key: user.rpc
-
-Prometheus:
-  Host: 0.0.0.0
-  Port: 9094
-  Path: /metrics

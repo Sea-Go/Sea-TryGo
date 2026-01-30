@@ -5,7 +5,7 @@ Port: 8888
 Log:
   ServiceName: usercenter
   Mode: file        
-  Path: log/user  
+  Path: ../../../../log/user  
 
 UserAuth:
  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0

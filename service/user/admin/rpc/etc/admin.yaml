@@ -4,11 +4,11 @@ ListenOn: 0.0.0.0:8081
 Log:
   ServiceName: admin-rpc
   Mode: file
-  Path: log/admin-rpc
+  Path: ../../../../log/admin-rpc
 
 Etcd:
   Hosts:
-  - 127.0.0.1:32379
+   - 127.0.0.1:32379
   Key: admin.rpc
 DataSource: "postgres://admin:Sea-TryGo@127.0.0.1:35432/first_db?sslmode=disable&TimeZone=Asia/Shanghai"
 
