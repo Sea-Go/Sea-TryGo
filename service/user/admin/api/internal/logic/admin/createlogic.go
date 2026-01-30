@@ -5,11 +5,16 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CreateLogic struct {
@@ -26,7 +31,7 @@ func NewCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateLogi
 	}
 }
 
-func (l *CreateLogic) Create(req *types.CreateAdminReq) (resp *types.CreateAdminResp, err error) {
+func (l *CreateLogic) Create(req *types.CreateAdminReq) (resp *types.CreateAdminResp, code int) {
 
 	rpcReq := &pb.CreateAdminReq{
 		Username:  req.Username,
@@ -37,10 +42,19 @@ func (l *CreateLogic) Create(req *types.CreateAdminReq) (resp *types.CreateAdmin
 
 	rpcResp, err := l.svcCtx.AdminRpc.CreateAdmin(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.AlreadyExists:
+			return nil, errmsg.ErrorUserExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
-
 	return &types.CreateAdminResp{
 		Uid: rpcResp.Uid,
-	}, nil
+	}, errmsg.Success
 }

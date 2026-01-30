@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type BanuserLogic struct {
@@ -26,17 +30,26 @@ func NewBanuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BanuserLo
 	}
 }
 
-func (l *BanuserLogic) Banuser(req *types.BanUserReq) (resp *types.BanUserResp, err error) {
+func (l *BanuserLogic) Banuser(req *types.BanUserReq) (resp *types.BanUserResp, code int) {
 	uid := req.Uid
 	rpcReq := &pb.BanUserReq{
 		Uid: uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.BanUser(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	return &types.BanUserResp{
 		Success: rpcResp.Success,
-	}, nil
+	}, errmsg.Success
 }

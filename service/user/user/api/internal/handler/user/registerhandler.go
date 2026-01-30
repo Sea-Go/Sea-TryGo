@@ -5,6 +5,8 @@ package user
 
 import (
 	"net/http"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/response"
 	"sea-try-go/service/user/user/api/internal/logic/user"
 	"sea-try-go/service/user/user/api/internal/svc"
 	"sea-try-go/service/user/user/api/internal/types"
@@ -21,11 +23,11 @@ func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := user.NewRegisterLogic(r.Context(), svcCtx)
-		resp, err := l.Register(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		resp, code := l.Register(&req)
+		httpx.OkJson(w, &response.Response{
+			Code: code,
+			Msg:  errmsg.GetErrMsg(code),
+			Data: resp,
+		})
 	}
 }

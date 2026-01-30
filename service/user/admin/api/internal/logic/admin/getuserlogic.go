@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GetuserLogic struct {
@@ -26,14 +30,23 @@ func NewGetuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetuserLo
 	}
 }
 
-func (l *GetuserLogic) Getuser(req *types.GetUserReq) (resp *types.GetUserResp, err error) {
+func (l *GetuserLogic) Getuser(req *types.GetUserReq) (resp *types.GetUserResp, code int) {
 
 	rpcReq := &pb.GetUserReq{
 		Uid: req.Uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.GetUser(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 	return &types.GetUserResp{
 		User: types.UserInfo{
@@ -44,5 +57,5 @@ func (l *GetuserLogic) Getuser(req *types.GetUserReq) (resp *types.GetUserResp, 
 			Extrainfo: rpcResp.User.ExtraInfo,
 		},
 		Found: true,
-	}, nil
+	}, errmsg.Success
 }

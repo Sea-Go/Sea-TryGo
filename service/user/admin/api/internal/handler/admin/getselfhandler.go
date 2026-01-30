@@ -8,6 +8,8 @@ import (
 	"sea-try-go/service/user/admin/api/internal/logic/admin"
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -21,11 +23,11 @@ func GetselfHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := admin.NewGetselfLogic(r.Context(), svcCtx)
-		resp, err := l.Getself(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		resp, code := l.Getself(&req)
+		httpx.OkJson(w, &response.Response{
+			Code: code,
+			Msg:  errmsg.GetErrMsg(code),
+			Data: resp,
+		})
 	}
 }

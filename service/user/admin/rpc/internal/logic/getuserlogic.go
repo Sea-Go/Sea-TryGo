@@ -2,13 +2,16 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"sea-try-go/service/user/admin/rpc/internal/svc"
+	"fmt"
 	"sea-try-go/service/user/admin/rpc/internal/model"
+	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GetUserLogic struct {
@@ -29,9 +32,13 @@ func (l *GetUserLogic) GetUser(in *pb.GetUserReq) (*pb.GetUserResp, error) {
 	user, err := l.svcCtx.AdminModel.FindOneUserByUid(l.ctx, in.Uid)
 	if err != nil {
 		if err == model.ErrorNotFound {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserNotExist))
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserNotExist, err)
+			return nil, status.Error(codes.NotFound, "用户不存在")
 		}
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
+	logger.LogInfo(l.ctx, fmt.Sprintf("search user success,uid : %d", in.Uid))
 	return &pb.GetUserResp{
 		User: &pb.UserInfo{
 			Uid:       user.Uid,

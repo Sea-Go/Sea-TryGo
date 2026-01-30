@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type DeleteLogic struct {
@@ -26,15 +30,24 @@ func NewDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteLogi
 	}
 }
 
-func (l *DeleteLogic) Delete(req *types.DeleteUserReq) (resp *types.DeleteUserResp, err error) {
+func (l *DeleteLogic) Delete(req *types.DeleteUserReq) (resp *types.DeleteUserResp, code int) {
 	rpcReq := &pb.DeleteUserReq{
 		Uid: req.Uid,
 	}
 	rpcResp, err := l.svcCtx.AdminRpc.DeleteUser(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 	return &types.DeleteUserResp{
 		Success: rpcResp.Success,
-	}, nil
+	}, errmsg.Success
 }

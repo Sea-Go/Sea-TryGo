@@ -2,13 +2,16 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"sea-try-go/service/user/admin/rpc/internal/svc"
+	"fmt"
 	"sea-try-go/service/user/admin/rpc/internal/model"
+	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UnBanUserLogic struct {
@@ -29,10 +32,13 @@ func (l *UnBanUserLogic) UnBanUser(in *pb.UnBanUserReq) (*pb.UnBanUserResp, erro
 	err := l.svcCtx.AdminModel.UpdateUserStatusByUid(l.ctx, in.Uid, 0)
 	if err != nil {
 		if err == model.ErrorNotFound {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserNotExist))
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserNotExist, err)
+			return nil, status.Error(codes.NotFound, "用户不存在")
 		}
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB更新失败")
 	}
+	logger.LogInfo(l.ctx, fmt.Sprintf("unban user success,uid : %d", in.Uid))
 	return &pb.UnBanUserResp{
 		Success: true,
 	}, nil

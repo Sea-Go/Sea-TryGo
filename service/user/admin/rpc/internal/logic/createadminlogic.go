@@ -2,15 +2,18 @@ package logic
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sea-try-go/service/common/snowflake"
 	"sea-try-go/service/user/admin/rpc/internal/model"
 	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/cryptx"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CreateAdminLogic struct {
@@ -31,16 +34,24 @@ func (l *CreateAdminLogic) CreateAdmin(in *pb.CreateAdminReq) (*pb.CreateAdminRe
 
 	_, err := l.svcCtx.AdminModel.FindOneAdminByUsername(l.ctx, in.Username)
 	if err == nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserExist))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorUserExist, fmt.Errorf("username has existed"))
+		return nil, status.Error(codes.AlreadyExists, "用户名已存在")
+	}
+	if err != model.ErrorNotFound {
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询错误")
 	}
 
 	password, err := cryptx.PasswordEncrypt(in.Password)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, status.Error(codes.Internal, "密码加密失败")
+
 	}
 	uid, err := snowflake.GetID()
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, status.Error(codes.Internal, "ID生成失败")
 	}
 	admin := &model.Admin{
 		Uid:       uid,
@@ -51,8 +62,10 @@ func (l *CreateAdminLogic) CreateAdmin(in *pb.CreateAdminReq) (*pb.CreateAdminRe
 	}
 	err = l.svcCtx.AdminModel.InsertOneAdmin(l.ctx, admin)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorDbUpdate))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB添加失败")
 	}
+	logger.LogInfo(l.ctx, fmt.Sprintf("add admin success,uid: %d", uid))
 	return &pb.CreateAdminResp{
 		Uid: admin.Uid,
 	}, nil

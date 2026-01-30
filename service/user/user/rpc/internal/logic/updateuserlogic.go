@@ -2,14 +2,17 @@ package logic
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sea-try-go/service/user/common/cryptx"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 	"sea-try-go/service/user/user/rpc/internal/model"
 	"sea-try-go/service/user/user/rpc/internal/svc"
 	"sea-try-go/service/user/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UpdateUserLogic struct {
@@ -30,12 +33,22 @@ func (l *UpdateUserLogic) UpdateUser(in *pb.UpdateUserReq) (*pb.UpdateUserResp, 
 
 	toUpdate := &model.User{}
 	if len(in.Username) > 0 {
+		_, err := l.svcCtx.UserModel.FindOneByUserName(l.ctx, in.Username)
+		if err == nil {
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserExist, err)
+			return nil, status.Error(codes.AlreadyExists, "用户名已存在")
+		}
+		if err != model.ErrorNotFound {
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+			return nil, status.Error(codes.Internal, "DB查询失败")
+		}
 		toUpdate.Username = in.Username
 	}
 	if len(in.Password) > 0 {
-		newPassword, e := cryptx.PasswordEncrypt(in.Password)
-		if e != nil {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		newPassword, err := cryptx.PasswordEncrypt(in.Password)
+		if err != nil {
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+			return nil, status.Error(codes.Internal, "密码生成失败")
 		}
 		toUpdate.Password = newPassword
 	}
@@ -49,18 +62,21 @@ func (l *UpdateUserLogic) UpdateUser(in *pb.UpdateUserReq) (*pb.UpdateUserResp, 
 	err := l.svcCtx.UserModel.UpdateUserById(l.ctx, in.Uid, toUpdate)
 
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB更新失败")
 	}
 
 	newUser, err := l.svcCtx.UserModel.FindOneByUid(l.ctx, in.Uid)
 
 	if err != nil {
 		if err == model.ErrorNotFound {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserNotExist))
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserNotExist, err)
+			return nil, status.Error(codes.NotFound, "用户不存在")
 		}
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
-
+	logger.LogInfo(l.ctx, fmt.Sprintf("update success,uid : %d", in.Uid))
 	return &pb.UpdateUserResp{
 		User: &pb.UserInfo{
 			Uid:       newUser.Uid,

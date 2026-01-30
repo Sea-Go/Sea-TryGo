@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UpdateuserLogic struct {
@@ -26,7 +30,7 @@ func NewUpdateuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 	}
 }
 
-func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.UpdateUserResp, err error) {
+func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.UpdateUserResp, code int) {
 
 	rpcReq := &pb.UpdateUserReq{
 		Uid:       req.Uid,
@@ -38,7 +42,18 @@ func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.Upda
 
 	rpcResp, err := l.svcCtx.AdminRpc.UpdateUser(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.AlreadyExists:
+			return nil, errmsg.ErrorUserExist
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorDbSelect
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	return &types.UpdateUserResp{
@@ -50,5 +65,5 @@ func (l *UpdateuserLogic) Updateuser(req *types.UpdateUserReq) (resp *types.Upda
 			Status:    int64(rpcResp.User.Status),
 			Extrainfo: rpcResp.User.ExtraInfo,
 		},
-	}, nil
+	}, errmsg.Success
 }

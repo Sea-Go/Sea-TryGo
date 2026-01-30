@@ -5,6 +5,7 @@ package user
 
 import (
 	"context"
+	"sea-try-go/service/user/common/errmsg"
 	"sea-try-go/service/user/user/api/internal/svc"
 	"sea-try-go/service/user/user/api/internal/types"
 
@@ -25,10 +26,10 @@ func NewLogoutLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LogoutLogi
 	}
 }
 
-func (l *LogoutLogic) Logout(req *types.LogoutReq) (resp *types.LogoutResp, err error) {
+func (l *LogoutLogic) Logout(req *types.LogoutReq) (resp *types.LogoutResp, code int) {
 
 	//不是很懂logout具体逻辑怎么写,先这样子吧
 	return &types.LogoutResp{
 		Success: true,
-	}, nil
+	}, errmsg.Success
 }

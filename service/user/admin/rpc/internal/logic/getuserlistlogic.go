@@ -2,12 +2,15 @@ package logic
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GetUserListLogic struct {
@@ -28,7 +31,8 @@ func (l *GetUserListLogic) GetUserList(in *pb.GetUserListReq) (*pb.GetUserListRe
 
 	users, total, err := l.svcCtx.AdminModel.FindUserListByKeyword(l.ctx, in.Page, in.PageSize, in.Keyword)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorDbSelect))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
 
 	list := make([]*pb.UserInfo, 0)
@@ -42,6 +46,7 @@ func (l *GetUserListLogic) GetUserList(in *pb.GetUserListReq) (*pb.GetUserListRe
 			ExtraInfo: user.ExtraInfo,
 		})
 	}
+	logger.LogInfo(l.ctx, fmt.Sprintf("search users success,keyword : %s", in.Keyword))
 	return &pb.GetUserListResp{
 		List:  list,
 		Total: total,

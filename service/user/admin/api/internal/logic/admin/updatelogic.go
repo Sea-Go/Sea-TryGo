@@ -6,12 +6,16 @@ package admin
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UpdateLogic struct {
@@ -28,14 +32,16 @@ func NewUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateLogi
 	}
 }
 
-func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfResp, err error) {
+func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfResp, code int) {
 	userId, ok := l.ctx.Value("userId").(json.Number)
 	if !ok {
-		return nil, errors.New("Token 解析异常")
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorTokenRuntime, fmt.Errorf("ctx userId is not json.Number"))
+		return nil, errmsg.ErrorTokenRuntime
 	}
 	uid, err := userId.Int64()
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorTokenRuntime, fmt.Errorf("parse uid failed:%v", err))
+		return nil, errmsg.ErrorTokenRuntime
 	}
 	rpcReq := &pb.UpdateSelfReq{
 		Uid:       uid,
@@ -47,7 +53,18 @@ func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfRe
 
 	rpcResp, err := l.svcCtx.AdminRpc.UpdateSelf(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.AlreadyExists:
+			return nil, errmsg.ErrorUserExist
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorDbSelect
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	return &types.UpdateSelfResp{
@@ -58,6 +75,6 @@ func (l *UpdateLogic) Update(req *types.UpdateSelfReq) (resp *types.UpdateSelfRe
 			Email:     rpcResp.Admin.Email,
 			Extrainfo: rpcResp.Admin.ExtraInfo,
 		},
-	}, nil
+	}, errmsg.Success
 
 }

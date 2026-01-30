@@ -5,11 +5,15 @@ package user
 
 import (
 	"context"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 	"sea-try-go/service/user/user/api/internal/svc"
 	"sea-try-go/service/user/user/api/internal/types"
 	"sea-try-go/service/user/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type RegisterLogic struct {
@@ -26,10 +30,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 	}
 }
 
-//register代码存在一定问题:
-//用First和Create可能会在高并发情境下产生错误,出现两个人注册了同一个的情况
-
-func (l *RegisterLogic) Register(req *types.CreateUserReq) (resp *types.CreateUserResp, err error) {
+func (l *RegisterLogic) Register(req *types.CreateUserReq) (resp *types.CreateUserResp, code int) {
 
 	rpcReq := &pb.CreateUserReq{
 		Username:  req.Username,
@@ -38,14 +39,21 @@ func (l *RegisterLogic) Register(req *types.CreateUserReq) (resp *types.CreateUs
 		ExtraInfo: req.Extrainfo,
 	}
 
-	rpcResp, e := l.svcCtx.UserRpc.Register(l.ctx, rpcReq)
-	//第二个参数必须是指针类型
+	rpcResp, err := l.svcCtx.UserRpc.Register(l.ctx, rpcReq)
 
-	if e != nil {
-		return nil, e
+	if err != nil {
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		case codes.AlreadyExists:
+			return nil, errmsg.ErrorUserExist
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
-
 	return &types.CreateUserResp{
 		Uid: rpcResp.Uid,
-	}, nil
+	}, errmsg.Success
 }

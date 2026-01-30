@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UnbanuserLogic struct {
@@ -26,15 +30,24 @@ func NewUnbanuserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Unbanus
 	}
 }
 
-func (l *UnbanuserLogic) Unbanuser(req *types.UnBanUserReq) (resp *types.UnBanUserResp, err error) {
+func (l *UnbanuserLogic) Unbanuser(req *types.UnBanUserReq) (resp *types.UnBanUserResp, code int) {
 	rpcReq := &pb.UnBanUserReq{
 		Uid: req.Uid,
 	}
-	rpcResp, er := l.svcCtx.AdminRpc.UnBanUser(l.ctx, rpcReq)
-	if er != nil {
-		return nil, er
+	rpcResp, err := l.svcCtx.AdminRpc.UnBanUser(l.ctx, rpcReq)
+	if err != nil {
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorDbSelect
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 	return &types.UnBanUserResp{
 		Success: rpcResp.Success,
-	}, nil
+	}, errmsg.Success
 }

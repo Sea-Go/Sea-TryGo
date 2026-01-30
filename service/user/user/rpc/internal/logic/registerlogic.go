@@ -2,16 +2,18 @@ package logic
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sea-try-go/service/common/snowflake"
 	"sea-try-go/service/user/common/cryptx"
 	"sea-try-go/service/user/common/errmsg"
-	"sea-try-go/service/user/user/rpc/internal/metrics"
+	"sea-try-go/service/user/common/logger"
 	"sea-try-go/service/user/user/rpc/internal/model"
 	"sea-try-go/service/user/user/rpc/internal/svc"
 	"sea-try-go/service/user/user/rpc/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type RegisterLogic struct {
@@ -32,21 +34,24 @@ func (l *RegisterLogic) Register(in *pb.CreateUserReq) (*pb.CreateUserResp, erro
 
 	_, err := l.svcCtx.UserModel.FindOneByUserName(l.ctx, in.Username)
 	if err == nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserExist))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorUserExist, fmt.Errorf("username has existed"))
+		return nil, status.Error(codes.AlreadyExists, "用户名已存在")
 	}
 	if err != model.ErrorNotFound {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
-	truePassword, er := cryptx.PasswordEncrypt(in.Password)
-	if er != nil {
-		return nil, er
+	truePassword, err := cryptx.PasswordEncrypt(in.Password)
+	if err != nil {
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, status.Error(codes.Internal, "密码生成失败")
 	}
 
 	var uid int64
 	uid, err = snowflake.GetID()
 	if err != nil {
-		l.Logger.Errorf("生成UID失败:%v", err)
-		return nil, errors.New("ID生成失败")
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, status.Error(codes.Internal, "uid生成失败")
 	}
 	newUser := model.User{
 		Uid:       uid,
@@ -59,9 +64,10 @@ func (l *RegisterLogic) Register(in *pb.CreateUserReq) (*pb.CreateUserResp, erro
 	}
 	err = l.svcCtx.UserModel.Insert(l.ctx, &newUser)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorDbUpdate))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB更新失败")
 	}
-	metrics.RegisterSuccessTotal.Inc()
+	logger.LogInfo(l.ctx, fmt.Sprintf("register success,uid : %d", uid))
 	return &pb.CreateUserResp{
 		Uid: newUser.Uid,
 	}, nil

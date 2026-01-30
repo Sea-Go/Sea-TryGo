@@ -2,14 +2,17 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"sea-try-go/service/user/admin/rpc/internal/svc"
+	"fmt"
 	"sea-try-go/service/user/admin/rpc/internal/model"
+	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/cryptx"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UpdateSelfLogic struct {
@@ -28,6 +31,26 @@ func NewUpdateSelfLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 
 func (l *UpdateSelfLogic) UpdateSelf(in *pb.UpdateSelfReq) (*pb.UpdateSelfResp, error) {
 
+	_, err := l.svcCtx.AdminModel.FindOneAdminByUid(l.ctx, in.Uid)
+	if err != nil {
+		if err == model.ErrorNotFound {
+			return nil, status.Error(codes.NotFound, "用户不存在")
+		}
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
+	}
+
+	if len(in.Username) > 0 {
+		existAdmin, err := l.svcCtx.AdminModel.FindOneAdminByUsername(l.ctx, in.Username)
+		if err == nil && existAdmin.Uid != in.Uid {
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserExist, fmt.Errorf("username %s already taken", in.Username))
+			return nil, status.Error(codes.AlreadyExists, "该用户名已被使用")
+		}
+		if err != nil && err != model.ErrorNotFound {
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+			return nil, status.Error(codes.Internal, "DB查询失败")
+		}
+	}
 	toUpdate := &model.Admin{}
 	if len(in.Username) > 0 {
 		toUpdate.Username = in.Username
@@ -35,7 +58,8 @@ func (l *UpdateSelfLogic) UpdateSelf(in *pb.UpdateSelfReq) (*pb.UpdateSelfResp, 
 	if len(in.Password) > 0 {
 		newPassword, e := cryptx.PasswordEncrypt(in.Password)
 		if e != nil {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, e)
+			return nil, status.Error(codes.Internal, "密码加密失败")
 		}
 		toUpdate.Password = newPassword
 	}
@@ -45,15 +69,24 @@ func (l *UpdateSelfLogic) UpdateSelf(in *pb.UpdateSelfReq) (*pb.UpdateSelfResp, 
 	if in.ExtraInfo != nil {
 		toUpdate.ExtraInfo = in.ExtraInfo
 	}
-	err := l.svcCtx.AdminModel.UpdateOneAdminByUid(l.ctx, in.Uid, toUpdate)
+
+	err = l.svcCtx.AdminModel.UpdateOneAdminByUid(l.ctx, in.Uid, toUpdate)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB更新失败")
 	}
 	var newAdmin *model.Admin
 	newAdmin, err = l.svcCtx.AdminModel.FindOneAdminByUid(l.ctx, in.Uid)
 	if err != nil {
-		return nil, err
+		if err == model.ErrorNotFound {
+			return nil, status.Error(codes.NotFound, "用户不存在")
+		}
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
+
+	logger.LogInfo(l.ctx, fmt.Sprintf("update self success, uid : %d", in.Uid))
+
 	return &pb.UpdateSelfResp{
 		Success: true,
 		Admin: &pb.AdminInfo{

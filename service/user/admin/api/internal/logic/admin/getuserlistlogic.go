@@ -8,8 +8,12 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GetuserlistLogic struct {
@@ -26,7 +30,7 @@ func NewGetuserlistLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Getus
 	}
 }
 
-func (l *GetuserlistLogic) Getuserlist(req *types.GetUserListReq) (resp *types.GetUserListResp, err error) {
+func (l *GetuserlistLogic) Getuserlist(req *types.GetUserListReq) (resp *types.GetUserListResp, code int) {
 	rpcReq := &pb.GetUserListReq{
 		Page:     req.Page,
 		PageSize: req.PageSize,
@@ -35,7 +39,14 @@ func (l *GetuserlistLogic) Getuserlist(req *types.GetUserListReq) (resp *types.G
 
 	rpcResp, err := l.svcCtx.AdminRpc.GetUserList(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 	var list []types.UserInfo
 	if rpcResp.List != nil {
@@ -52,5 +63,5 @@ func (l *GetuserlistLogic) Getuserlist(req *types.GetUserListReq) (resp *types.G
 	return &types.GetUserListResp{
 		List:  list,
 		Total: rpcResp.Total,
-	}, nil
+	}, errmsg.Success
 }

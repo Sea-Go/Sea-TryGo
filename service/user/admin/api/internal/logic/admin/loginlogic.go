@@ -10,9 +10,13 @@ import (
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/admin/rpc/pb"
+	"sea-try-go/service/user/common/errmsg"
 	"sea-try-go/service/user/common/jwt"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type LoginLogic struct {
@@ -29,7 +33,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 	}
 }
 
-func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
+func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, code int) {
 	rpcReq := &pb.LoginReq{
 		Password: req.Password,
 		Username: req.Username,
@@ -37,7 +41,18 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 
 	rpcResp, err := l.svcCtx.AdminRpc.Login(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorUserNotExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		case codes.Unauthenticated:
+			return nil, errmsg.ErrorLoginWrong
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	now := time.Now().Unix()
@@ -45,9 +60,10 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	accessExpire := l.svcCtx.Config.AdminAuth.AccessExpire
 	token, err := jwt.GetToken(accessSecret, now, accessExpire, int64(rpcResp.Uid))
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, errmsg.ErrorServerCommon
 	}
 	return &types.LoginResp{
 		Token: token,
-	}, nil
+	}, errmsg.Success
 }

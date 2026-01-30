@@ -2,14 +2,17 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"sea-try-go/service/user/admin/rpc/internal/svc"
+	"fmt"
 	"sea-try-go/service/user/admin/rpc/internal/model"
+	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
 	"sea-try-go/service/user/common/cryptx"
 	"sea-try-go/service/user/common/errmsg"
+	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ResetUserPasswordLogic struct {
@@ -31,20 +34,24 @@ func (l *ResetUserPasswordLogic) ResetUserPassword(in *pb.ResetUserPasswordReq) 
 	_, err := l.svcCtx.AdminModel.FindOneUserByUid(l.ctx, in.Uid)
 	if err != nil {
 		if err == model.ErrorNotFound {
-			return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorUserNotExist))
+			logger.LogBusinessErr(l.ctx, errmsg.ErrorUserNotExist, err)
+			return nil, status.Error(codes.NotFound, "用户不存在")
 		}
-		//可能需要写日志来记录错误
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbSelect, err)
+		return nil, status.Error(codes.Internal, "DB查询失败")
 	}
 	var password string
 	password, err = cryptx.PasswordEncrypt(l.svcCtx.Config.System.DefaultPassword)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorServerCommon))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorServerCommon, err)
+		return nil, status.Error(codes.Internal, "密码加密失败")
 	}
 	err = l.svcCtx.AdminModel.UpdateUserPasswordByUid(l.ctx, in.Uid, password)
 	if err != nil {
-		return nil, errors.New(errmsg.GetErrMsg(errmsg.ErrorDbUpdate))
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err)
+		return nil, status.Error(codes.Internal, "DB更新失败")
 	}
+	logger.LogInfo(l.ctx, fmt.Sprintf("reset password success,uid : %d", in.Uid))
 	return &pb.ResetUserPasswordResp{
 		Success: true,
 	}, nil
