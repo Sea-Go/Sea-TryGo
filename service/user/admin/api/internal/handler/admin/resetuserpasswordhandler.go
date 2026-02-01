@@ -5,11 +5,11 @@ package admin
 
 import (
 	"net/http"
+	"sea-try-go/service/common/response"
 	"sea-try-go/service/user/admin/api/internal/logic/admin"
 	"sea-try-go/service/user/admin/api/internal/svc"
 	"sea-try-go/service/user/admin/api/internal/types"
 	"sea-try-go/service/user/common/errmsg"
-	"sea-try-go/service/user/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )

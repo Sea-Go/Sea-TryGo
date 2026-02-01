@@ -5,8 +5,8 @@ package user
 
 import (
 	"net/http"
+	"sea-try-go/service/common/response"
 	"sea-try-go/service/user/common/errmsg"
-	"sea-try-go/service/user/common/response"
 	"sea-try-go/service/user/user/api/internal/logic/user"
 	"sea-try-go/service/user/user/api/internal/svc"
 	"sea-try-go/service/user/user/api/internal/types"

@@ -6,9 +6,9 @@ package user
 import (
 	"context"
 	"fmt"
+	"sea-try-go/service/common/logger"
 	"sea-try-go/service/user/common/errmsg"
 	"sea-try-go/service/user/common/jwt"
-	"sea-try-go/service/user/common/logger"
 	"sea-try-go/service/user/user/api/internal/svc"
 	"sea-try-go/service/user/user/api/internal/types"
 	"sea-try-go/service/user/user/rpc/pb"

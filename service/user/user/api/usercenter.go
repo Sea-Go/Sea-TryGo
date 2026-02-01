@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"sea-try-go/service/user/common/logger"
+	"sea-try-go/service/common/logger"
 	"sea-try-go/service/user/user/api/internal/config"
 	"sea-try-go/service/user/user/api/internal/handler"
 	"sea-try-go/service/user/user/api/internal/svc"

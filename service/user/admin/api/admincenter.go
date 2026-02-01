@@ -6,10 +6,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sea-try-go/service/common/logger"
 	"sea-try-go/service/user/admin/api/internal/config"
 	"sea-try-go/service/user/admin/api/internal/handler"
 	"sea-try-go/service/user/admin/api/internal/svc"
-	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
