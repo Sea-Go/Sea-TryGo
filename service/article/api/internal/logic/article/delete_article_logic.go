@@ -7,12 +7,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sea-try-go/service/article/rpc/articleservice"
 
 	"sea-try-go/service/article/api/internal/svc"
 	"sea-try-go/service/article/api/internal/types"
-	"sea-try-go/service/article/rpc/articleservice"
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type DeleteArticleLogic struct {
@@ -29,7 +33,7 @@ func NewDeleteArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 	}
 }
 
-func (l *DeleteArticleLogic) DeleteArticle(req *types.DeleteArticleReq) (resp *types.DeleteArticleResp, err error) {
+func (l *DeleteArticleLogic) DeleteArticle(req *types.DeleteArticleReq) (resp *types.DeleteArticleResp, code int) {
 	var OperatorId string
 	if uid := l.ctx.Value("userId"); uid != nil {
 		if idNum, ok := uid.(json.Number); ok {
@@ -40,15 +44,24 @@ func (l *DeleteArticleLogic) DeleteArticle(req *types.DeleteArticleReq) (resp *t
 	} else {
 		OperatorId = "dev_test_user"
 	}
-	_, err = l.svcCtx.ArticleRpc.DeleteArticle(l.ctx, &articleservice.DeleteArticleRequest{
+	_, err := l.svcCtx.ArticleRpc.DeleteArticle(l.ctx, &articleservice.DeleteArticleRequest{
 		ArticleId:  req.ArticleId,
 		OperatorId: OperatorId,
 	})
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorArticleNone
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	return &types.DeleteArticleResp{
 		Success: true,
-	}, nil
+	}, errmsg.Success
 }

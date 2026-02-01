@@ -5,14 +5,16 @@ package article
 
 import (
 	"context"
-
-	"fmt"
+	"sea-try-go/service/article/rpc/articleservice"
 
 	"sea-try-go/service/article/api/internal/svc"
 	"sea-try-go/service/article/api/internal/types"
-	"sea-try-go/service/article/rpc/articleservice"
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GetArticleLogic struct {
@@ -29,17 +31,26 @@ func NewGetArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetArt
 	}
 }
 
-func (l *GetArticleLogic) GetArticle(req *types.GetArticleReq) (resp *types.GetArticleResp, err error) {
+func (l *GetArticleLogic) GetArticle(req *types.GetArticleReq) (resp *types.GetArticleResp, code int) {
 	res, err := l.svcCtx.ArticleRpc.GetArticle(l.ctx, &articleservice.GetArticleRequest{
 		ArticleId: req.ArticleId,
 		IncrView:  req.IncrView,
 	})
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorArticleNone
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	if res.Article == nil {
-		return nil, fmt.Errorf("article not found")
+		return nil, errmsg.ErrorArticleNone
 	}
 
 	return &types.GetArticleResp{
@@ -49,15 +60,13 @@ func (l *GetArticleLogic) GetArticle(req *types.GetArticleReq) (resp *types.GetA
 			Brief:         res.Article.Brief,
 			Content:       res.Article.MarkdownContent,
 			CoverImageUrl: res.Article.CoverImageUrl,
+			AuthorId:      res.Article.AuthorId,
+			Status:        int32(res.Article.Status),
 			ManualTypeTag: res.Article.ManualTypeTag,
 			SecondaryTags: res.Article.SecondaryTags,
-			AuthorId:      res.Article.AuthorId,
-			CreateTime:    res.Article.CreateTime,
-			UpdateTime:    res.Article.UpdateTime,
-			Status:        int32(res.Article.Status),
 			ViewCount:     res.Article.ViewCount,
 			LikeCount:     res.Article.LikeCount,
 			CommentCount:  res.Article.CommentCount,
 		},
-	}, nil
+	}, errmsg.Success
 }

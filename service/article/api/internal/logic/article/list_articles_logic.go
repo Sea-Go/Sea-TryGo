@@ -10,7 +10,12 @@ import (
 	"sea-try-go/service/article/api/internal/types"
 	"sea-try-go/service/article/rpc/articleservice"
 
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/logger"
+
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ListArticlesLogic struct {
@@ -27,7 +32,7 @@ func NewListArticlesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *List
 	}
 }
 
-func (l *ListArticlesLogic) ListArticles(req *types.ListArticlesReq) (resp *types.ListArticlesResp, err error) {
+func (l *ListArticlesLogic) ListArticles(req *types.ListArticlesReq) (resp *types.ListArticlesResp, code int) {
 	res, err := l.svcCtx.ArticleRpc.ListArticles(l.ctx, &articleservice.ListArticlesRequest{
 		ManualTypeTag: &req.ManualTypeTag,
 		SecondaryTag:  &req.SecondaryTag,
@@ -39,7 +44,14 @@ func (l *ListArticlesLogic) ListArticles(req *types.ListArticlesReq) (resp *type
 		Desc:          req.Desc,
 	})
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	var articles []types.Article
@@ -67,5 +79,5 @@ func (l *ListArticlesLogic) ListArticles(req *types.ListArticlesReq) (resp *type
 		Total:    res.Total,
 		Page:     res.Page,
 		PageSize: res.PageSize,
-	}, nil
+	}, errmsg.Success
 }

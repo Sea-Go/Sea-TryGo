@@ -10,8 +10,12 @@ import (
 	"sea-try-go/service/article/api/internal/types"
 	"sea-try-go/service/article/rpc/articleservice"
 	"sea-try-go/service/article/rpc/pb"
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UpdateArticleLogic struct {
@@ -28,7 +32,7 @@ func NewUpdateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 	}
 }
 
-func (l *UpdateArticleLogic) UpdateArticle(req *types.UpdateArticleReq) (resp *types.UpdateArticleResp, err error) {
+func (l *UpdateArticleLogic) UpdateArticle(req *types.UpdateArticleReq) (resp *types.UpdateArticleResp, code int) {
 	// Construct RPC request, handling optional fields
 	rpcReq := &articleservice.UpdateArticleRequest{
 		ArticleId:     req.ArticleId,
@@ -55,12 +59,19 @@ func (l *UpdateArticleLogic) UpdateArticle(req *types.UpdateArticleReq) (resp *t
 		rpcReq.Status = status.Enum()
 	}
 
-	res, err := l.svcCtx.ArticleRpc.UpdateArticle(l.ctx, rpcReq)
+	_, err := l.svcCtx.ArticleRpc.UpdateArticle(l.ctx, rpcReq)
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.NotFound:
+			return nil, errmsg.ErrorArticleNone
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
-	return &types.UpdateArticleResp{
-		Success: res.Success,
-	}, nil
+	return &types.UpdateArticleResp{}, errmsg.Success
 }

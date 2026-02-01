@@ -7,12 +7,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sea-try-go/service/article/rpc/articleservice"
 
 	"sea-try-go/service/article/api/internal/svc"
 	"sea-try-go/service/article/api/internal/types"
-	"sea-try-go/service/article/rpc/articleservice"
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CreateArticleLogic struct {
@@ -29,7 +33,7 @@ func NewCreateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 	}
 }
 
-func (l *CreateArticleLogic) CreateArticle(req *types.CreateArticleReq) (resp *types.CreateArticleResp, err error) {
+func (l *CreateArticleLogic) CreateArticle(req *types.CreateArticleReq) (resp *types.CreateArticleResp, code int) {
 	var authorId string
 	if uid := l.ctx.Value("userId"); uid != nil {
 		if idNum, ok := uid.(json.Number); ok {
@@ -52,10 +56,19 @@ func (l *CreateArticleLogic) CreateArticle(req *types.CreateArticleReq) (resp *t
 	})
 
 	if err != nil {
-		return nil, err
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err)
+		st, _ := status.FromError(err)
+		switch st.Code() {
+		case codes.AlreadyExists:
+			return nil, errmsg.ErrorArticleExist
+		case codes.Internal:
+			return nil, errmsg.ErrorServerCommon
+		default:
+			return nil, errmsg.CodeServerBusy
+		}
 	}
 
 	return &types.CreateArticleResp{
 		ArticleId: rpcResp.ArticleId,
-	}, nil
+	}, errmsg.Success
 }

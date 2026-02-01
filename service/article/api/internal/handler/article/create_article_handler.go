@@ -5,6 +5,8 @@ package article
 
 import (
 	"net/http"
+	"sea-try-go/service/article/common/errmsg"
+	"sea-try-go/service/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"sea-try-go/service/article/api/internal/logic/article"
@@ -21,11 +23,11 @@ func CreateArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := article.NewCreateArticleLogic(r.Context(), svcCtx)
-		resp, err := l.CreateArticle(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		resp, code := l.CreateArticle(&req)
+		httpx.OkJson(w, &response.Response{
+			Code: code,
+			Msg:  errmsg.GetErrMsg(code),
+			Data: resp,
+		})
 	}
 }
