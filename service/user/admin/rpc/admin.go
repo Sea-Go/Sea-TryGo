@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sea-try-go/service/common/logger"
 	"sea-try-go/service/user/admin/rpc/internal/config"
 	"sea-try-go/service/user/admin/rpc/internal/server"
 	"sea-try-go/service/user/admin/rpc/internal/svc"
 	"sea-try-go/service/user/admin/rpc/pb"
-	"sea-try-go/service/user/common/logger"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"

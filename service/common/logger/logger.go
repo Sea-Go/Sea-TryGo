@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"sea-try-go/service/common/snowflake"
+
 	"github.com/zeromicro/go-zero/core/logx"
 	z_trace "github.com/zeromicro/go-zero/core/trace"
 	"sea-try-go/service/common/snowflake"

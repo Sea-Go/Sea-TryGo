@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"sea-try-go/service/common/snowflake"
 	"strings"
 	"testing"
 	"time"
-	"sea-try-go/service/common/snowflake"
+
 	"github.com/zeromicro/go-zero/core/logx"
 	z_trace "github.com/zeromicro/go-zero/core/trace"
 )
