@@ -8,9 +8,9 @@ import (
 
 	"sea-try-go/service/article/api/internal/svc"
 	"sea-try-go/service/article/api/internal/types"
+	"sea-try-go/service/article/common/errmsg"
 	"sea-try-go/service/article/rpc/articleservice"
 	"sea-try-go/service/article/rpc/pb"
-	"sea-try-go/service/article/common/errmsg"
 	"sea-try-go/service/common/logger"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +33,6 @@ func NewUpdateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateArticleLogic) UpdateArticle(req *types.UpdateArticleReq) (resp *types.UpdateArticleResp, code int) {
-	// Construct RPC request, handling optional fields
 	rpcReq := &articleservice.UpdateArticleRequest{
 		ArticleId:     req.ArticleId,
 		SecondaryTags: req.SecondaryTags,
