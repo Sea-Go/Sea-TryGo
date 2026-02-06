@@ -33,7 +33,6 @@ func (l *ListArticlesLogic) ListArticles(in *__.ListArticlesRequest) (*__.ListAr
 		ManualTypeTag: *in.ManualTypeTag,
 		SecondaryTag:  *in.SecondaryTag,
 		AuthorId:      *in.AuthorId,
-		RelatedGameId: *in.RelatedGameId,
 	})
 
 	if err != nil {
