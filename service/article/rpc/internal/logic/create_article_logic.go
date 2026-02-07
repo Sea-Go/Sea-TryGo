@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
+	"sea-try-go/service/article/common/errmsg"
 	"sea-try-go/service/article/rpc/internal/model"
 	"sea-try-go/service/article/rpc/internal/svc"
 	"sea-try-go/service/article/rpc/pb"
+	"sea-try-go/service/common/logger"
 	"sea-try-go/service/common/snowflake"
 )
 
@@ -45,7 +47,7 @@ func (l *CreateArticleLogic) CreateArticle(in *__.CreateArticleRequest) (*__.Cre
 	}
 
 	if err := l.svcCtx.ArticleRepo.Insert(l.ctx, newArticle); err != nil {
-		l.Logger.Errorf("CreateArticle db error: %v", err)
+		logger.LogBusinessErr(l.ctx, errmsg.ErrorDbUpdate, err, logger.WithArticleID(articleId), logger.WithUserID(in.AuthorId))
 		return nil, err
 	}
 
@@ -61,7 +63,8 @@ func (l *CreateArticleLogic) CreateArticle(in *__.CreateArticleRequest) (*__.Cre
 
 	msgBytes, _ := json.Marshal(msg)
 	if err := l.svcCtx.KqPusher.Push(l.ctx, string(msgBytes)); err != nil {
-		l.Logger.Errorf("Failed to push article creation event to Kafka: %v, payload: %s", err, string(msgBytes))
+		err = fmt.Errorf("kafka push failed, payload: %s, error: %w", string(msgBytes), err)
+		logger.LogBusinessErr(l.ctx, errmsg.Error, err, logger.WithArticleID(articleId), logger.WithUserID(in.AuthorId))
 	}
 
 	return &__.CreateArticleResponse{
